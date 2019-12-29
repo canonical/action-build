@@ -5,6 +5,9 @@ inputs:
   path:
     description: 'The location of the Snapcraft project.  Defaults to the base of the repository'
     default: '.'
+outputs:
+  snap:
+    description: 'The file name of the resulting snap.'
 runs:
   using: 'node12'
   main: 'dist/index.js'

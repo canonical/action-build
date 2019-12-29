@@ -24,5 +24,10 @@ jobs:
         ref: master
         path: './test-project'
     - uses: ./
+      id: snapcraft
       with:
         path: './test-project'
+    - uses: actions/upload-artifact@v1
+      with:
+        name: 'snap'
+        path: ${{ steps.snapcraft.outputs.snap}}

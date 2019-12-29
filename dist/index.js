@@ -980,6 +980,8 @@ function run() {
             core.info(`Building Snapcraft project in "${path}"...`);
             const builder = new build_1.SnapcraftBuilder(path);
             yield builder.build();
+            const snap = yield builder.outputSnap();
+            core.setOutput('snap', snap);
         }
         catch (error) {
             core.setFailed(error.message);
@@ -1296,18 +1298,43 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const path = __importStar(__webpack_require__(622));
+const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const tools = __importStar(__webpack_require__(735));
+// Importing as an ECMAScript Module blocks access to fs.promises:
+//   https://github.com/nodejs/node/issues/21014
+const fs = __webpack_require__(747); // eslint-disable-line @typescript-eslint/no-require-imports
 class SnapcraftBuilder {
-    constructor(path) {
-        this.path = path;
+    constructor(projectRoot) {
+        this.projectRoot = projectRoot;
     }
     build() {
         return __awaiter(this, void 0, void 0, function* () {
             yield tools.ensureSnapd();
             yield tools.ensureLXD();
             yield tools.ensureSnapcraft();
-            yield exec.exec('sudo', ['snapcraft', '--use-lxd'], { cwd: this.path });
+            yield exec.exec('sudo', ['snapcraft', '--use-lxd'], { cwd: this.projectRoot });
+        });
+    }
+    // This wrapper is for the benefit of the tests, due to the crazy
+    // typing of fs.promises.readdir()
+    _readdir(dir) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield fs.promises.readdir(dir);
+        });
+    }
+    outputSnap() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const files = yield this._readdir(this.projectRoot);
+            const snaps = files.filter(name => name.endsWith('.snap'));
+            if (snaps.length === 0) {
+                throw new Error('No snap files produced by build');
+            }
+            if (snaps.length > 1) {
+                core.warning(`Multiple snaps found in ${this.projectRoot}`);
+            }
+            return path.join(this.projectRoot, snaps[0]);
         });
     }
 }
