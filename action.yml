@@ -1,10 +1,10 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Snapcraft Build'
+description: 'Build a Snapcraft project'
+author: 'James Henstridge'
 inputs:
-  myInput:              # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  path:
+    description: 'The location of the Snapcraft project.  Defaults to the base of the repository'
+    default: '.'
 runs:
   using: 'node12'
   main: 'dist/index.js'

@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
+  "name": "snapcraft-build-action",
   "version": "0.0.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "A Github action that build snapcraft projects",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/jhenstridge/snapcraft-build-action.git"
   },
   "keywords": [
     "actions",
     "node",
     "setup"
   ],
-  "author": "YourNameOrOrganization",
+  "author": "James Henstridge",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.2.0"
