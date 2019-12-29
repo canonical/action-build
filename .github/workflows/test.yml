@@ -7,17 +7,22 @@ on: # rebuild any PRs and main branch changes
       - 'releases/*'
 
 jobs:
-  build: # make sure build/ci work properly
+  unit: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - run: |
         npm install
         npm run all
-  test: # make sure the action works on a clean machine without building
+  integration: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+      with:
+        repository: jhenstridge/test-jamesh-webapp
+        ref: master
+        path: './test-project'
     - uses: ./
-      with: 
-        milliseconds: 1000
+      with:
+        path: './test-project'

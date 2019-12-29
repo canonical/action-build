@@ -1,16 +1,15 @@
+// -*- mode: javascript; js-indent-level: 2 -*-
+
 import * as core from '@actions/core'
-import {wait} from './wait'
+import {SnapcraftBuilder} from './build'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const path: string = core.getInput('path')
+    core.info(`Building Snapcraft project in "${path}"...`)
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
+    const builder = new SnapcraftBuilder(path)
+    await builder.build()
   } catch (error) {
     core.setFailed(error.message)
   }
