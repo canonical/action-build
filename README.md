@@ -1,117 +1,88 @@
 <p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/jhenstridge/snapcraft-build-action/actions"><img alt="snapcraft-build-action status" src="https://github.com/jhenstridge/snapcraft-build-action/workflows/build-test/badge.svg"></a>
 </p>
 
-# Create a JavaScript Action using TypeScript
+# Snapcraft Build Action
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+This is a Github Action that can be used to build a
+[Snapcraft](https://snapcraft.io) project.  For most projects, the
+following workflow should be sufficient:
 
-This template includes compilication support, tests, a validation workflow, publishing, and versioning guidance.  
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: jhenstridge/snapcraft-build-action@v1
+```
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+This will install and configure LXD and Snapcraft, then invoke
+`snapcraft` to build the project.
 
-## Create an action from this template
+It assumes that the Snapcraft project is at the root of the
+repository.  If this is not the case, then the action can be
+configured with the `path` input parameter:
 
-Click the `Use this Template` and provide the new repo details for your action
+```yaml
+...
+    - uses: jhenstridge/snapcraft-build-action@v1
+      with:
+        path: path-to-snapcraft-project
+```
 
-## Code in Master
+On success, the action will set the `snap` output parameter to the
+path of the built snap.  This can be used to save it as an artifact of
+the workflow:
 
-Install the dependencies  
+```yaml
+...
+    - uses: jhenstridge/snapcraft-build-action@v1
+      id: snapcraft
+    - uses: actions/upload-artifact@v1
+      with:
+        name: snap
+        path: ${{ steps.snapcraft.outputs.snap }}
+```
+
+Alternatively, it could be used to perform further testing on the built snap:
+
+```yaml
+    - run: |
+        sudo snap install --dangerous ${{ steps.snapcraft.outputs.snap }}
+        # do something with the snap
+```
+
+## Contributing to the action
+
+This action is written in TypeScript using Github's template action
+project as a starting point.  The unit tests can be run locally, and
+the repository includes a Github Actions workflow that will invoke the
+in-tree version of the action.
+
+After cloning the repository, the dependencies can be installed with:
 ```bash
 $ npm install
 ```
 
-Build the typescript
+The TypeScript code in `src/` can be compiled to JavaScript with:
 ```bash
 $ npm run build
 ```
 
-Run the tests :heavy_check_mark:  
+The tests in `__tests__/` can be run with:
 ```bash
 $ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
 ```
 
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos.  We will create a releases branch and only checkin production modules (core in this case). 
-
-Comment out node_modules in .gitignore and create a releases/v1 branch
+The packed JavaScript actually run by the Github Actions system can be
+built with:
 ```bash
-# comment out in distribution branches
-# node_modules/
+$ npm run pack
 ```
 
+If you are putting together a pull request, you can run through all
+steps including code reformatting and linting with:
 ```bash
-$ git checkout -b releases/v1
-$ git commit -a -m "prod dependencies"
-```
-
-```bash
-$ npm prune --production
-$ git add node_modules
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing the releases/v1 branch
-
-```yaml
-uses: actions/typescript-action@releases/v1
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and tested action
-
-```yaml
-uses: actions/typescript-action@v1
-with:
-  milliseconds: 1000
+$ npm run all
 ```
