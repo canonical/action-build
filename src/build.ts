@@ -19,7 +19,13 @@ export class SnapcraftBuilder {
     await tools.ensureSnapd()
     await tools.ensureLXD()
     await tools.ensureSnapcraft()
-    await exec.exec('sudo', ['snapcraft', '--use-lxd'], {cwd: this.projectRoot})
+    await exec.exec(
+      'sudo',
+      ['env', 'SNAPCRAFT_BUILD_ENVIRONMENT=lxd', 'snapcraft'],
+      {
+        cwd: this.projectRoot
+      }
+    )
   }
 
   // This wrapper is for the benefit of the tests, due to the crazy

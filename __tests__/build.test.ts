@@ -34,9 +34,13 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   expect(ensureSnapd).toHaveBeenCalled()
   expect(ensureLXD).toHaveBeenCalled()
   expect(ensureSnapcraft).toHaveBeenCalled()
-  expect(execMock).toHaveBeenCalledWith('sudo', ['snapcraft', '--use-lxd'], {
-    cwd: projectDir
-  })
+  expect(execMock).toHaveBeenCalledWith(
+    'sudo',
+    ['env', 'SNAPCRAFT_BUILD_ENVIRONMENT=lxd', 'snapcraft'],
+    {
+      cwd: projectDir
+    }
+  )
 })
 
 test('SnapcraftBuilder.outputSnap fails if there are no snaps', async () => {

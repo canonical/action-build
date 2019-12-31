@@ -1314,7 +1314,9 @@ class SnapcraftBuilder {
             yield tools.ensureSnapd();
             yield tools.ensureLXD();
             yield tools.ensureSnapcraft();
-            yield exec.exec('sudo', ['snapcraft', '--use-lxd'], { cwd: this.projectRoot });
+            yield exec.exec('sudo', ['env', 'SNAPCRAFT_BUILD_ENVIRONMENT=lxd', 'snapcraft'], {
+                cwd: this.projectRoot
+            });
         });
     }
     // This wrapper is for the benefit of the tests, due to the crazy
