@@ -1311,9 +1311,11 @@ class SnapcraftBuilder {
     }
     build() {
         return __awaiter(this, void 0, void 0, function* () {
+            core.startGroup('Installing Snapcraft plus dependencies');
             yield tools.ensureSnapd();
             yield tools.ensureLXD();
             yield tools.ensureSnapcraft();
+            core.endGroup();
             yield exec.exec('sudo', ['env', 'SNAPCRAFT_BUILD_ENVIRONMENT=lxd', 'snapcraft'], {
                 cwd: this.projectRoot
             });

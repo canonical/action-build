@@ -16,9 +16,11 @@ export class SnapcraftBuilder {
   }
 
   async build(): Promise<void> {
+    core.startGroup('Installing Snapcraft plus dependencies')
     await tools.ensureSnapd()
     await tools.ensureLXD()
     await tools.ensureSnapcraft()
+    core.endGroup()
     await exec.exec(
       'sudo',
       ['env', 'SNAPCRAFT_BUILD_ENVIRONMENT=lxd', 'snapcraft'],
