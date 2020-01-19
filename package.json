@@ -1,6 +1,6 @@
 {
   "name": "snapcraft-build-action",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "private": true,
   "description": "A Github action that build snapcraft projects",
   "main": "lib/main.js",
