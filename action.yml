@@ -1,6 +1,9 @@
 name: 'Snapcraft Build'
 description: 'Build a Snapcraft project'
 author: 'James Henstridge'
+branding:
+  icon: 'package'
+  color: 'orange'
 inputs:
   path:
     description: 'The location of the Snapcraft project.  Defaults to the base of the repository'
