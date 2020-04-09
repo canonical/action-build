@@ -31,3 +31,13 @@ steps including code reformatting and linting with:
 ```bash
 $ npm run all
 ```
+
+## Making Releases
+
+1. Update the version number in `package.json`, commit and push.
+2. On the Github website, make a release matching the version number (e.g. `v1.0.0`).
+3. Update the `v1` tag to point at the new release revision.
+  ```
+  git tag -fa v1 -m "Update v1 tag"
+  git push origin v1 --force
+  ```
