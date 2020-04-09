@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/jhenstridge/snapcraft-build-action/actions"><img alt="snapcraft-build-action status" src="https://github.com/jhenstridge/snapcraft-build-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/snapcore/action-build/actions"><img alt="snapcraft-build-action status" src="https://github.com/snapcore/action-build/workflows/build-test/badge.svg"></a>
 </p>
 
 # Snapcraft Build Action
@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: jhenstridge/snapcraft-build-action@v1
+    - uses: snapcore/action-build@v1
 ```
 
 This will install and configure LXD and Snapcraft, then invoke
@@ -26,7 +26,7 @@ configured with the `path` input parameter:
 
 ```yaml
 ...
-    - uses: jhenstridge/snapcraft-build-action@v1
+    - uses: snapcore/action-build@v1
       with:
         path: path-to-snapcraft-project
 ```
@@ -37,7 +37,7 @@ the workflow:
 
 ```yaml
 ...
-    - uses: jhenstridge/snapcraft-build-action@v1
+    - uses: snapcore/action-build@v1
       id: snapcraft
     - uses: actions/upload-artifact@v1
       with:
