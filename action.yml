@@ -8,6 +8,18 @@ inputs:
   path:
     description: 'The location of the Snapcraft project.  Defaults to the base of the repository'
     default: '.'
+  build-info:
+    description: >
+      Whether to include build information in the resulting snap.
+
+      This will add snap/manifest.yaml and snap/snapcraft.yaml files
+      to the snap.  The Snap Store can use this information to detect
+      snaps with security vulnerabilities introduced through
+      stage-packages.
+
+      Proprietary applications may want to disable this due to
+      the information leakage.
+    default: 'true'
 outputs:
   snap:
     description: 'The file name of the resulting snap.'

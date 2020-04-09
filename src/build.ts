@@ -1,6 +1,7 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
 import * as path from 'path'
+import * as process from 'process'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as tools from './tools'
@@ -8,11 +9,19 @@ import * as tools from './tools'
 //   https://github.com/nodejs/node/issues/21014
 import fs = require('fs') // eslint-disable-line @typescript-eslint/no-require-imports
 
+interface ImageInfo {
+  'build-request-id'?: string
+  'build-request-timestamp'?: string
+  build_url?: string
+}
+
 export class SnapcraftBuilder {
   projectRoot: string
+  includeBuildInfo: boolean
 
-  constructor(projectRoot: string) {
+  constructor(projectRoot: string, includeBuildInfo: boolean) {
     this.projectRoot = projectRoot
+    this.includeBuildInfo = includeBuildInfo
   }
 
   async build(): Promise<void> {
@@ -21,11 +30,28 @@ export class SnapcraftBuilder {
     await tools.ensureLXD()
     await tools.ensureSnapcraft()
     core.endGroup()
+
+    const imageInfo: ImageInfo = {
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      build_url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+    }
+    const env: {[key: string]: string} = {
+      SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
+      SNAPCRAFT_IMAGE_INFO: JSON.stringify(imageInfo)
+    }
+    if (this.includeBuildInfo) {
+      env['SNAPCRAFT_BUILD_INFO'] = '1'
+    }
+
     await exec.exec(
       'sudo',
-      ['env', 'SNAPCRAFT_BUILD_ENVIRONMENT=lxd', 'snapcraft'],
+      [
+        '--preserve-env=SNAPCRAFT_BUILD_ENVIRONMENT,SNAPCRAFT_BUILD_INFO,SNAPCRAFT_IMAGE_INFO',
+        'snapcraft'
+      ],
       {
-        cwd: this.projectRoot
+        cwd: this.projectRoot,
+        env
       }
     )
   }

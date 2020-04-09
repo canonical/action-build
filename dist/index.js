@@ -977,8 +977,9 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const path = core.getInput('path');
+            const buildInfo = (core.getInput('build-info') || 'true').toUpperCase() === 'TRUE';
             core.info(`Building Snapcraft project in "${path}"...`);
-            const builder = new build_1.SnapcraftBuilder(path);
+            const builder = new build_1.SnapcraftBuilder(path, buildInfo);
             yield builder.build();
             const snap = yield builder.outputSnap();
             core.setOutput('snap', snap);
@@ -1325,6 +1326,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(__webpack_require__(622));
+const process = __importStar(__webpack_require__(765));
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const tools = __importStar(__webpack_require__(735));
@@ -1332,8 +1334,9 @@ const tools = __importStar(__webpack_require__(735));
 //   https://github.com/nodejs/node/issues/21014
 const fs = __webpack_require__(747); // eslint-disable-line @typescript-eslint/no-require-imports
 class SnapcraftBuilder {
-    constructor(projectRoot) {
+    constructor(projectRoot, includeBuildInfo) {
         this.projectRoot = projectRoot;
+        this.includeBuildInfo = includeBuildInfo;
     }
     build() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1342,8 +1345,23 @@ class SnapcraftBuilder {
             yield tools.ensureLXD();
             yield tools.ensureSnapcraft();
             core.endGroup();
-            yield exec.exec('sudo', ['env', 'SNAPCRAFT_BUILD_ENVIRONMENT=lxd', 'snapcraft'], {
-                cwd: this.projectRoot
+            const imageInfo = {
+                // eslint-disable-next-line @typescript-eslint/camelcase
+                build_url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            };
+            const env = {
+                SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
+                SNAPCRAFT_IMAGE_INFO: JSON.stringify(imageInfo)
+            };
+            if (this.includeBuildInfo) {
+                env['SNAPCRAFT_BUILD_INFO'] = '1';
+            }
+            yield exec.exec('sudo', [
+                '--preserve-env=SNAPCRAFT_BUILD_ENVIRONMENT,SNAPCRAFT_BUILD_INFO,SNAPCRAFT_IMAGE_INFO',
+                'snapcraft'
+            ], {
+                cwd: this.projectRoot,
+                env
             });
         });
     }
@@ -1686,6 +1704,13 @@ exports.ensureSnapcraft = ensureSnapcraft;
 /***/ (function(module) {
 
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 765:
+/***/ (function(module) {
+
+module.exports = require("process");
 
 /***/ }),
 
