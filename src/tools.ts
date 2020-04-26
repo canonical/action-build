@@ -1,10 +1,8 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
+import * as fs from 'fs'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
-// Importing as an ECMAScript Module blocks access to fs.promises:
-//   https://github.com/nodejs/node/issues/21014
-import fs = require('fs') // eslint-disable-line @typescript-eslint/no-require-imports
 
 async function haveExecutable(path: string): Promise<boolean> {
   try {

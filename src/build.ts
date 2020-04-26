@@ -1,13 +1,11 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
+import * as fs from 'fs'
 import * as path from 'path'
 import * as process from 'process'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as tools from './tools'
-// Importing as an ECMAScript Module blocks access to fs.promises:
-//   https://github.com/nodejs/node/issues/21014
-import fs = require('fs') // eslint-disable-line @typescript-eslint/no-require-imports
 
 interface ImageInfo {
   'build-request-id'?: string
