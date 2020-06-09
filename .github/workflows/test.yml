@@ -21,8 +21,8 @@ jobs:
     - uses: ./
       id: snapcraft
       with:
-        path: './test-project'
-    - uses: actions/upload-artifact@v1
+        path: './test-projects/core18'
+    - uses: actions/upload-artifact@v2
       with:
         name: 'snap'
         path: ${{ steps.snapcraft.outputs.snap}}
