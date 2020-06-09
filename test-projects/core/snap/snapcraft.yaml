@@ -14,6 +14,7 @@ apps:
 parts:
   build:
     plugin: meson
+    meson-version: 0.53.2 # Meson >= 0.54 requires a newer Ninja
     meson-parameters:
       - --prefix=/
     source: .
