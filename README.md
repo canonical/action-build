@@ -39,7 +39,7 @@ the workflow:
 ...
     - uses: snapcore/action-build@v1
       id: snapcraft
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: snap
         path: ${{ steps.snapcraft.outputs.snap }}
