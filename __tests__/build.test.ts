@@ -37,22 +37,15 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   expect(ensureSnapd).toHaveBeenCalled()
   expect(ensureLXD).toHaveBeenCalled()
   expect(ensureSnapcraft).toHaveBeenCalled()
-  expect(execMock).toHaveBeenCalledWith(
-    'sudo',
-    [
-      '--preserve-env=SNAPCRAFT_BUILD_ENVIRONMENT,SNAPCRAFT_BUILD_INFO,SNAPCRAFT_IMAGE_INFO',
-      'snapcraft'
-    ],
-    {
-      cwd: projectDir,
-      env: {
-        SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
-        SNAPCRAFT_BUILD_INFO: '1',
-        SNAPCRAFT_IMAGE_INFO:
-          '{"build_url":"https://github.com/user/repo/actions/runs/42"}'
-      }
-    }
-  )
+  expect(execMock).toHaveBeenCalledWith('sg', ['lxd', '-c', 'snapcraft'], {
+    cwd: projectDir,
+    env: expect.objectContaining({
+      SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
+      SNAPCRAFT_BUILD_INFO: '1',
+      SNAPCRAFT_IMAGE_INFO:
+        '{"build_url":"https://github.com/user/repo/actions/runs/42"}'
+    })
+  })
 })
 
 test('SnapcraftBuilder.build can disable build info', async () => {
@@ -76,13 +69,12 @@ test('SnapcraftBuilder.build can disable build info', async () => {
   const builder = new build.SnapcraftBuilder('.', false)
   await builder.build()
 
-  expect(execMock).toHaveBeenCalledWith('sudo', expect.any(Array), {
+  expect(execMock).toHaveBeenCalledWith('sg', expect.any(Array), {
     cwd: expect.any(String),
-    env: {
+    env: expect.not.objectContaining({
       // No SNAPCRAFT_BUILD_INFO variable
-      SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
-      SNAPCRAFT_IMAGE_INFO: expect.any(String)
-    }
+      SNAPCRAFT_BUILD_INFO: expect.anything()
+    })
   })
 })
 

@@ -1,6 +1,7 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
 import * as fs from 'fs'
+import * as os from 'os'
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 
@@ -39,6 +40,13 @@ export async function ensureLXD(): Promise<void> {
     core.info('Installing LXD...')
     await exec.exec('sudo', ['snap', 'install', 'lxd'])
     await exec.exec('sudo', ['lxd', 'init', '--auto'])
+    await exec.exec('sudo', [
+      'usermod',
+      '--append',
+      '--groups',
+      'lxd',
+      os.userInfo().username
+    ])
   }
 }
 

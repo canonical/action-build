@@ -1279,6 +1279,9 @@ var external_process_ = __webpack_require__(765);
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __webpack_require__(986);
 
+// EXTERNAL MODULE: external "os"
+var external_os_ = __webpack_require__(87);
+
 // CONCATENATED MODULE: ./lib/tools.js
 // -*- mode: javascript; js-indent-level: 2 -*-
 var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -1290,6 +1293,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -1332,6 +1336,13 @@ function ensureLXD() {
             Object(core.info)('Installing LXD...');
             yield Object(exec.exec)('sudo', ['snap', 'install', 'lxd']);
             yield Object(exec.exec)('sudo', ['lxd', 'init', '--auto']);
+            yield Object(exec.exec)('sudo', [
+                'usermod',
+                '--append',
+                '--groups',
+                'lxd',
+                Object(external_os_.userInfo)().username
+            ]);
         }
     });
 }
@@ -1378,17 +1389,15 @@ class build_SnapcraftBuilder {
                 // eslint-disable-next-line @typescript-eslint/camelcase
                 build_url: `https://github.com/${external_process_.env.GITHUB_REPOSITORY}/actions/runs/${external_process_.env.GITHUB_RUN_ID}`
             };
-            const env = {
-                SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
-                SNAPCRAFT_IMAGE_INFO: JSON.stringify(imageInfo)
-            };
+            // Copy and update environment to pass to snapcraft
+            const env = {};
+            Object.assign(env, external_process_.env);
+            env['SNAPCRAFT_BUILD_ENVIRONMENT'] = 'lxd';
+            env['SNAPCRAFT_IMAGE_INFO'] = JSON.stringify(imageInfo);
             if (this.includeBuildInfo) {
                 env['SNAPCRAFT_BUILD_INFO'] = '1';
             }
-            yield Object(exec.exec)('sudo', [
-                '--preserve-env=SNAPCRAFT_BUILD_ENVIRONMENT,SNAPCRAFT_BUILD_INFO,SNAPCRAFT_IMAGE_INFO',
-                'snapcraft'
-            ], {
+            yield Object(exec.exec)('sg', ['lxd', '-c', 'snapcraft'], {
                 cwd: this.projectRoot,
                 env
             });

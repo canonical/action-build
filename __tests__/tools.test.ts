@@ -114,7 +114,7 @@ test('ensureSnapd fixes permissions on the root directory', async () => {
 })
 
 test('ensureLXD installs the snap version of LXD if needed', async () => {
-  expect.assertions(3)
+  expect.assertions(4)
 
   const accessMock = jest.spyOn(fs.promises, 'access').mockImplementation(
     async (filename: fs.PathLike, mode?: number | undefined): Promise<void> => {
@@ -136,6 +136,13 @@ test('ensureLXD installs the snap version of LXD if needed', async () => {
     'lxd'
   ])
   expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', ['lxd', 'init', '--auto'])
+  expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', [
+    'usermod',
+    '--append',
+    '--groups',
+    'lxd',
+    os.userInfo().username
+  ])
 })
 
 test('ensureLXD removes the apt version of LXD', async () => {

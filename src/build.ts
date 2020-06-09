@@ -33,25 +33,19 @@ export class SnapcraftBuilder {
       // eslint-disable-next-line @typescript-eslint/camelcase
       build_url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
     }
-    const env: {[key: string]: string} = {
-      SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
-      SNAPCRAFT_IMAGE_INFO: JSON.stringify(imageInfo)
-    }
+    // Copy and update environment to pass to snapcraft
+    const env: {[key: string]: string} = {}
+    Object.assign(env, process.env)
+    env['SNAPCRAFT_BUILD_ENVIRONMENT'] = 'lxd'
+    env['SNAPCRAFT_IMAGE_INFO'] = JSON.stringify(imageInfo)
     if (this.includeBuildInfo) {
       env['SNAPCRAFT_BUILD_INFO'] = '1'
     }
 
-    await exec.exec(
-      'sudo',
-      [
-        '--preserve-env=SNAPCRAFT_BUILD_ENVIRONMENT,SNAPCRAFT_BUILD_INFO,SNAPCRAFT_IMAGE_INFO',
-        'snapcraft'
-      ],
-      {
-        cwd: this.projectRoot,
-        env
-      }
-    )
+    await exec.exec('sg', ['lxd', '-c', 'snapcraft'], {
+      cwd: this.projectRoot,
+      env
+    })
   }
 
   // This wrapper is for the benefit of the tests, due to the crazy
