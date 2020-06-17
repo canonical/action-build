@@ -51,8 +51,9 @@ export async function ensureLXD(): Promise<void> {
   if (!haveSnapLXD) {
     core.info('Installing LXD...')
     await exec.exec('sudo', ['snap', 'install', 'lxd'])
-    await exec.exec('sudo', ['lxd', 'init', '--auto'])
   }
+  core.info('Initialising LXD...')
+  await exec.exec('sudo', ['lxd', 'init', '--auto'])
 }
 
 export async function ensureSnapcraft(): Promise<void> {

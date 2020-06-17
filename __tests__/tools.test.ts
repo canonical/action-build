@@ -177,8 +177,8 @@ test('ensureLXD removes the apt version of LXD', async () => {
   ])
 })
 
-test('ensureLXD is a no-op if LXD is installed', async () => {
-  expect.assertions(3)
+test('ensureLXD still calls "lxd init" if LXD is installed', async () => {
+  expect.assertions(4)
 
   const accessMock = jest.spyOn(fs.promises, 'access').mockImplementation(
     async (filename: fs.PathLike, mode?: number | undefined): Promise<void> => {
@@ -210,6 +210,7 @@ test('ensureLXD is a no-op if LXD is installed', async () => {
     'lxd',
     os.userInfo().username
   ])
+  expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', ['lxd', 'init', '--auto'])
 })
 
 test('ensureSnapcraft installs Snapcraft if needed', async () => {

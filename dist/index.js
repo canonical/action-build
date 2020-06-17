@@ -1391,8 +1391,9 @@ function ensureLXD() {
         if (!haveSnapLXD) {
             Object(core.info)('Installing LXD...');
             yield Object(exec.exec)('sudo', ['snap', 'install', 'lxd']);
-            yield Object(exec.exec)('sudo', ['lxd', 'init', '--auto']);
         }
+        Object(core.info)('Initialising LXD...');
+        yield Object(exec.exec)('sudo', ['lxd', 'init', '--auto']);
     });
 }
 function ensureSnapcraft() {
