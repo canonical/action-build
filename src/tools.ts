@@ -35,18 +35,23 @@ export async function ensureLXD(): Promise<void> {
     core.info('Removing legacy .deb packaged LXD...')
     await exec.exec('sudo', ['apt-get', 'remove', '-qy', 'lxd', 'lxd-client'])
   }
+
+  core.info(`Ensuring ${os.userInfo().username} is in the lxd group...`)
+  await exec.exec('sudo', ['groupadd', '--force', '--system', 'lxd'])
+  await exec.exec('sudo', [
+    'usermod',
+    '--append',
+    '--groups',
+    'lxd',
+    os.userInfo().username
+  ])
+
+  // Ensure that the "lxd" group exists
   const haveSnapLXD = await haveExecutable('/snap/bin/lxd')
   if (!haveSnapLXD) {
     core.info('Installing LXD...')
     await exec.exec('sudo', ['snap', 'install', 'lxd'])
     await exec.exec('sudo', ['lxd', 'init', '--auto'])
-    await exec.exec('sudo', [
-      'usermod',
-      '--append',
-      '--groups',
-      'lxd',
-      os.userInfo().username
-    ])
   }
 }
 
