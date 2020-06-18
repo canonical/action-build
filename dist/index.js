@@ -1316,6 +1316,9 @@ var core = __webpack_require__(470);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __webpack_require__(747);
 
+// EXTERNAL MODULE: external "os"
+var external_os_ = __webpack_require__(87);
+
 // EXTERNAL MODULE: external "path"
 var external_path_ = __webpack_require__(622);
 
@@ -1324,9 +1327,6 @@ var external_process_ = __webpack_require__(765);
 
 // EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
 var exec = __webpack_require__(986);
-
-// EXTERNAL MODULE: external "os"
-var external_os_ = __webpack_require__(87);
 
 // CONCATENATED MODULE: ./lib/tools.js
 // -*- mode: javascript; js-indent-level: 2 -*-
@@ -1423,9 +1423,16 @@ var build_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _ar
 
 
 
+
+function expandHome(p) {
+    if (p === '~' || p.startsWith('~/')) {
+        p = Object(external_os_.homedir)() + p.slice(1);
+    }
+    return p;
+}
 class build_SnapcraftBuilder {
     constructor(projectRoot, includeBuildInfo) {
-        this.projectRoot = projectRoot;
+        this.projectRoot = expandHome(projectRoot);
         this.includeBuildInfo = includeBuildInfo;
     }
     build() {
