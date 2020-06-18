@@ -1377,19 +1377,23 @@ function ensureLXD() {
             Object(core.info)('Removing legacy .deb packaged LXD...');
             yield Object(exec.exec)('sudo', ['apt-get', 'remove', '-qy', 'lxd', 'lxd-client']);
         }
+        Object(core.info)(`Ensuring ${Object(external_os_.userInfo)().username} is in the lxd group...`);
+        yield Object(exec.exec)('sudo', ['groupadd', '--force', '--system', 'lxd']);
+        yield Object(exec.exec)('sudo', [
+            'usermod',
+            '--append',
+            '--groups',
+            'lxd',
+            Object(external_os_.userInfo)().username
+        ]);
+        // Ensure that the "lxd" group exists
         const haveSnapLXD = yield haveExecutable('/snap/bin/lxd');
         if (!haveSnapLXD) {
             Object(core.info)('Installing LXD...');
             yield Object(exec.exec)('sudo', ['snap', 'install', 'lxd']);
-            yield Object(exec.exec)('sudo', ['lxd', 'init', '--auto']);
-            yield Object(exec.exec)('sudo', [
-                'usermod',
-                '--append',
-                '--groups',
-                'lxd',
-                Object(external_os_.userInfo)().username
-            ]);
         }
+        Object(core.info)('Initialising LXD...');
+        yield Object(exec.exec)('sudo', ['lxd', 'init', '--auto']);
     });
 }
 function ensureSnapcraft() {

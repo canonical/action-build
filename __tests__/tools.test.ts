@@ -114,7 +114,7 @@ test('ensureSnapd fixes permissions on the root directory', async () => {
 })
 
 test('ensureLXD installs the snap version of LXD if needed', async () => {
-  expect.assertions(4)
+  expect.assertions(5)
 
   const accessMock = jest.spyOn(fs.promises, 'access').mockImplementation(
     async (filename: fs.PathLike, mode?: number | undefined): Promise<void> => {
@@ -129,20 +129,26 @@ test('ensureLXD installs the snap version of LXD if needed', async () => {
 
   await tools.ensureLXD()
 
-  expect(accessMock).toHaveBeenCalled()
   expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
-    'snap',
-    'install',
+    'groupadd',
+    '--force',
+    '--system',
     'lxd'
   ])
-  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', ['lxd', 'init', '--auto'])
-  expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', [
+  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
     'usermod',
     '--append',
     '--groups',
     'lxd',
     os.userInfo().username
   ])
+  expect(accessMock).toHaveBeenCalled()
+  expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', [
+    'snap',
+    'install',
+    'lxd'
+  ])
+  expect(execMock).toHaveBeenNthCalledWith(4, 'sudo', ['lxd', 'init', '--auto'])
 })
 
 test('ensureLXD removes the apt version of LXD', async () => {
@@ -171,8 +177,8 @@ test('ensureLXD removes the apt version of LXD', async () => {
   ])
 })
 
-test('ensureLXD is a no-op if LXD is installed', async () => {
-  expect.assertions(2)
+test('ensureLXD still calls "lxd init" if LXD is installed', async () => {
+  expect.assertions(4)
 
   const accessMock = jest.spyOn(fs.promises, 'access').mockImplementation(
     async (filename: fs.PathLike, mode?: number | undefined): Promise<void> => {
@@ -191,7 +197,20 @@ test('ensureLXD is a no-op if LXD is installed', async () => {
   await tools.ensureLXD()
 
   expect(accessMock).toHaveBeenCalled()
-  expect(execMock).not.toHaveBeenCalled()
+  expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
+    'groupadd',
+    '--force',
+    '--system',
+    'lxd'
+  ])
+  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
+    'usermod',
+    '--append',
+    '--groups',
+    'lxd',
+    os.userInfo().username
+  ])
+  expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', ['lxd', 'init', '--auto'])
 })
 
 test('ensureSnapcraft installs Snapcraft if needed', async () => {
