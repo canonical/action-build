@@ -1,9 +1,9 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
-import * as exec from '@actions/exec'
-import fs = require('fs')
+import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
+import * as exec from '@actions/exec'
 import * as tools from '../src/tools'
 
 afterEach(() => {

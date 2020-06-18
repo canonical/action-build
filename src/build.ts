@@ -1,6 +1,7 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
 import * as fs from 'fs'
+import * as os from 'os'
 import * as path from 'path'
 import * as process from 'process'
 import * as core from '@actions/core'
@@ -14,12 +15,19 @@ interface ImageInfo {
   build_url?: string
 }
 
+function expandHome(p: string): string {
+  if (p === '~' || p.startsWith('~/')) {
+    p = os.homedir() + p.slice(1)
+  }
+  return p
+}
+
 export class SnapcraftBuilder {
   projectRoot: string
   includeBuildInfo: boolean
 
   constructor(projectRoot: string, includeBuildInfo: boolean) {
-    this.projectRoot = projectRoot
+    this.projectRoot = expandHome(projectRoot)
     this.includeBuildInfo = includeBuildInfo
   }
 

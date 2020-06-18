@@ -1,6 +1,8 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
-import fs = require('fs')
+import * as fs from 'fs'
+import * as os from 'os'
+import * as path from 'path'
 import * as process from 'process'
 import * as exec from '@actions/exec'
 import * as build from '../src/build'
@@ -8,6 +10,14 @@ import * as tools from '../src/tools'
 
 afterEach(() => {
   jest.restoreAllMocks()
+})
+
+test('SnapcraftBuilder expands tilde in project root', () => {
+  let builder = new build.SnapcraftBuilder('~', true)
+  expect(builder.projectRoot).toBe(os.homedir())
+
+  builder = new build.SnapcraftBuilder('~/foo/bar', true)
+  expect(builder.projectRoot).toBe(path.join(os.homedir(), 'foo/bar'))
 })
 
 test('SnapcraftBuilder.build runs a snap build', async () => {
