@@ -1453,21 +1453,24 @@ function ensureLXD() {
         ]);
         // Ensure that the "lxd" group exists
         const haveSnapLXD = yield haveExecutable('/snap/bin/lxd');
-        if (!haveSnapLXD) {
-            Object(core.info)('Installing LXD...');
-            yield Object(exec.exec)('sudo', ['snap', 'install', 'lxd']);
-        }
+        Object(core.info)('Installing LXD...');
+        yield Object(exec.exec)('sudo', ['snap', haveSnapLXD ? 'refresh' : 'install', 'lxd']);
         Object(core.info)('Initialising LXD...');
         yield Object(exec.exec)('sudo', ['lxd', 'init', '--auto']);
     });
 }
-function ensureSnapcraft() {
+function ensureSnapcraft(channel) {
     return __awaiter(this, void 0, void 0, function* () {
         const haveSnapcraft = yield haveExecutable('/snap/bin/snapcraft');
-        if (!haveSnapcraft) {
-            Object(core.info)('Installing Snapcraft...');
-            yield Object(exec.exec)('sudo', ['snap', 'install', '--classic', 'snapcraft']);
-        }
+        Object(core.info)('Installing Snapcraft...');
+        yield Object(exec.exec)('sudo', [
+            'snap',
+            haveSnapcraft ? 'refresh' : 'install',
+            '--channel',
+            channel,
+            '--classic',
+            'snapcraft'
+        ]);
     });
 }
 
@@ -1496,16 +1499,18 @@ function expandHome(p) {
     return p;
 }
 class build_SnapcraftBuilder {
-    constructor(projectRoot, includeBuildInfo) {
+    constructor(projectRoot, includeBuildInfo, snapcraftChannel, snapcraftArgs) {
         this.projectRoot = expandHome(projectRoot);
         this.includeBuildInfo = includeBuildInfo;
+        this.snapcraftChannel = snapcraftChannel;
+        this.snapcraftArgs = snapcraftArgs;
     }
     build() {
         return build_awaiter(this, void 0, void 0, function* () {
             Object(core.startGroup)('Installing Snapcraft plus dependencies');
             yield ensureSnapd();
             yield ensureLXD();
-            yield ensureSnapcraft();
+            yield ensureSnapcraft(this.snapcraftChannel);
             Object(core.endGroup)();
             const imageInfo = {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -1519,7 +1524,11 @@ class build_SnapcraftBuilder {
             if (this.includeBuildInfo) {
                 env['SNAPCRAFT_BUILD_INFO'] = '1';
             }
-            yield Object(exec.exec)('sg', ['lxd', '-c', 'snapcraft'], {
+            let snapcraft = 'snapcraft';
+            if (this.snapcraftArgs) {
+                snapcraft = `${snapcraft} ${this.snapcraftArgs}`;
+            }
+            yield Object(exec.exec)('sg', ['lxd', '-c', snapcraft], {
                 cwd: this.projectRoot,
                 env
             });
@@ -1566,7 +1575,9 @@ function run() {
             const path = Object(core.getInput)('path');
             const buildInfo = (Object(core.getInput)('build-info') || 'true').toUpperCase() === 'TRUE';
             Object(core.info)(`Building Snapcraft project in "${path}"...`);
-            const builder = new build_SnapcraftBuilder(path, buildInfo);
+            const snapcraftChannel = Object(core.getInput)('snapcraft-channel');
+            const snapcraftArgs = Object(core.getInput)('snapcraft-args');
+            const builder = new build_SnapcraftBuilder(path, buildInfo, snapcraftChannel, snapcraftArgs);
             yield builder.build();
             const snap = yield builder.outputSnap();
             Object(core.setOutput)('snap', snap);

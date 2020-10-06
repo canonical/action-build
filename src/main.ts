@@ -9,8 +9,15 @@ async function run(): Promise<void> {
     const buildInfo =
       (core.getInput('build-info') || 'true').toUpperCase() === 'TRUE'
     core.info(`Building Snapcraft project in "${path}"...`)
+    const snapcraftChannel = core.getInput('snapcraft-channel')
+    const snapcraftArgs = core.getInput('snapcraft-args')
 
-    const builder = new SnapcraftBuilder(path, buildInfo)
+    const builder = new SnapcraftBuilder(
+      path,
+      buildInfo,
+      snapcraftChannel,
+      snapcraftArgs
+    )
     await builder.build()
     const snap = await builder.outputSnap()
     core.setOutput('snap', snap)

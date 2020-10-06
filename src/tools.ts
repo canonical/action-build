@@ -48,18 +48,21 @@ export async function ensureLXD(): Promise<void> {
 
   // Ensure that the "lxd" group exists
   const haveSnapLXD = await haveExecutable('/snap/bin/lxd')
-  if (!haveSnapLXD) {
-    core.info('Installing LXD...')
-    await exec.exec('sudo', ['snap', 'install', 'lxd'])
-  }
+  core.info('Installing LXD...')
+  await exec.exec('sudo', ['snap', haveSnapLXD ? 'refresh' : 'install', 'lxd'])
   core.info('Initialising LXD...')
   await exec.exec('sudo', ['lxd', 'init', '--auto'])
 }
 
-export async function ensureSnapcraft(): Promise<void> {
+export async function ensureSnapcraft(channel: string): Promise<void> {
   const haveSnapcraft = await haveExecutable('/snap/bin/snapcraft')
-  if (!haveSnapcraft) {
-    core.info('Installing Snapcraft...')
-    await exec.exec('sudo', ['snap', 'install', '--classic', 'snapcraft'])
-  }
+  core.info('Installing Snapcraft...')
+  await exec.exec('sudo', [
+    'snap',
+    haveSnapcraft ? 'refresh' : 'install',
+    '--channel',
+    channel,
+    '--classic',
+    'snapcraft'
+  ])
 }

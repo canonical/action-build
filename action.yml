@@ -20,6 +20,22 @@ inputs:
       Proprietary applications may want to disable this due to
       the information leakage.
     default: 'true'
+  snapcraft-channel:
+    description: >
+      The Snapcraft channel to use
+
+      By default, the action will use the stable version of Snapcraft
+      to build the project.  This parameter can be used to instead
+      select a different channel such as beta, candidate, or edge.
+    default: 'stable'
+  snapcraft-args:
+    description: >
+      Additional arguments to pass to Snapcraft
+
+      Some experimental Snapcraft features are disabled by default and
+      must be turned on via a `--enable-experimental-*` command line
+      argument.  This parameter can be used to turn on such features.
+    default: ''
 outputs:
   snap:
     description: 'The file name of the resulting snap.'

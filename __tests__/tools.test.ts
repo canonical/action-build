@@ -178,7 +178,7 @@ test('ensureLXD removes the apt version of LXD', async () => {
 })
 
 test('ensureLXD still calls "lxd init" if LXD is installed', async () => {
-  expect.assertions(4)
+  expect.assertions(5)
 
   const accessMock = jest.spyOn(fs.promises, 'access').mockImplementation(
     async (filename: fs.PathLike, mode?: number | undefined): Promise<void> => {
@@ -210,7 +210,12 @@ test('ensureLXD still calls "lxd init" if LXD is installed', async () => {
     'lxd',
     os.userInfo().username
   ])
-  expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', ['lxd', 'init', '--auto'])
+  expect(execMock).toHaveBeenNthCalledWith(3, 'sudo', [
+    'snap',
+    'refresh',
+    'lxd'
+  ])
+  expect(execMock).toHaveBeenNthCalledWith(4, 'sudo', ['lxd', 'init', '--auto'])
 })
 
 test('ensureSnapcraft installs Snapcraft if needed', async () => {
@@ -227,18 +232,20 @@ test('ensureSnapcraft installs Snapcraft if needed', async () => {
     }
   )
 
-  await tools.ensureSnapcraft()
+  await tools.ensureSnapcraft('edge')
 
   expect(accessMock).toHaveBeenCalled()
   expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
     'snap',
     'install',
+    '--channel',
+    'edge',
     '--classic',
     'snapcraft'
   ])
 })
 
-test('ensureSnapcraft is a no-op if Snapcraft is installed', async () => {
+test('ensureSnapcraft refreshes if Snapcraft is installed', async () => {
   expect.assertions(2)
 
   const accessMock = jest.spyOn(fs.promises, 'access').mockImplementation(
@@ -252,8 +259,15 @@ test('ensureSnapcraft is a no-op if Snapcraft is installed', async () => {
     }
   )
 
-  await tools.ensureSnapcraft()
+  await tools.ensureSnapcraft('edge')
 
   expect(accessMock).toHaveBeenCalled()
-  expect(execMock).not.toHaveBeenCalled()
+  expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
+    'snap',
+    'refresh',
+    '--channel',
+    'edge',
+    '--classic',
+    'snapcraft'
+  ])
 })
