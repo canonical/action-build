@@ -53,7 +53,7 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
       SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
       SNAPCRAFT_BUILD_INFO: '1',
       SNAPCRAFT_IMAGE_INFO:
-        '{"build_url":"https://github.com/user/repo/runs/42"}'
+        '{"build_url":"https://github.com/user/repo/actions/runs/42"}'
     })
   })
 })

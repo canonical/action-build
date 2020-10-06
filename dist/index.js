@@ -1514,7 +1514,7 @@ class build_SnapcraftBuilder {
             Object(core.endGroup)();
             const imageInfo = {
                 // eslint-disable-next-line @typescript-eslint/naming-convention
-                build_url: `https://github.com/${external_process_.env.GITHUB_REPOSITORY}/runs/${external_process_.env.GITHUB_RUN_ID}`
+                build_url: `https://github.com/${external_process_.env.GITHUB_REPOSITORY}/actions/runs/${external_process_.env.GITHUB_RUN_ID}`
             };
             // Copy and update environment to pass to snapcraft
             const env = {};

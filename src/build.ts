@@ -49,7 +49,7 @@ export class SnapcraftBuilder {
 
     const imageInfo: ImageInfo = {
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      build_url: `https://github.com/${process.env.GITHUB_REPOSITORY}/runs/${process.env.GITHUB_RUN_ID}`
+      build_url: `https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
     }
     // Copy and update environment to pass to snapcraft
     const env: {[key: string]: string} = {}
