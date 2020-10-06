@@ -25,17 +25,26 @@ function expandHome(p: string): string {
 export class SnapcraftBuilder {
   projectRoot: string
   includeBuildInfo: boolean
+  snapcraftChannel: string
+  snapcraftArgs: string
 
-  constructor(projectRoot: string, includeBuildInfo: boolean) {
+  constructor(
+    projectRoot: string,
+    includeBuildInfo: boolean,
+    snapcraftChannel: string,
+    snapcraftArgs: string
+  ) {
     this.projectRoot = expandHome(projectRoot)
     this.includeBuildInfo = includeBuildInfo
+    this.snapcraftChannel = snapcraftChannel
+    this.snapcraftArgs = snapcraftArgs
   }
 
   async build(): Promise<void> {
     core.startGroup('Installing Snapcraft plus dependencies')
     await tools.ensureSnapd()
     await tools.ensureLXD()
-    await tools.ensureSnapcraft()
+    await tools.ensureSnapcraft(this.snapcraftChannel)
     core.endGroup()
 
     const imageInfo: ImageInfo = {
@@ -51,7 +60,12 @@ export class SnapcraftBuilder {
       env['SNAPCRAFT_BUILD_INFO'] = '1'
     }
 
-    await exec.exec('sg', ['lxd', '-c', 'snapcraft'], {
+    let snapcraft = 'snapcraft'
+    if (this.snapcraftArgs) {
+      snapcraft = `${snapcraft} ${this.snapcraftArgs}`
+    }
+
+    await exec.exec('sg', ['lxd', '-c', snapcraft], {
       cwd: this.projectRoot,
       env
     })
