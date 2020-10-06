@@ -20,17 +20,6 @@ jobs:
 This will install and configure LXD and Snapcraft, then invoke
 `snapcraft` to build the project.
 
-It assumes that the Snapcraft project is at the root of the
-repository.  If this is not the case, then the action can be
-configured with the `path` input parameter:
-
-```yaml
-...
-    - uses: snapcore/action-build@v1
-      with:
-        path: path-to-snapcraft-project
-```
-
 On success, the action will set the `snap` output parameter to the
 path of the built snap.  This can be used to save it as an artifact of
 the workflow:
@@ -52,3 +41,49 @@ Alternatively, it could be used to perform further testing on the built snap:
         sudo snap install --dangerous ${{ steps.snapcraft.outputs.snap }}
         # do something with the snap
 ```
+
+The action can also be chained with
+[`snapcore/action-publish@v1`](https://github.com/snapcore/action-publish)
+to automatically publish builds to the Snap Store.
+
+
+## Action inputs
+
+### `path`
+
+If your Snapcraft project is not located in the root of the workspace,
+you can specify an alternative location via the `path` input
+parameter:
+
+```yaml
+...
+    - uses: snapcore/action-build@v1
+      with:
+        path: path-to-snapcraft-project
+```
+
+### `build-info`
+
+By default, the action will tell Snapcraft to include information
+about the build in the resulting snap, in the form of the
+`snap/snapcraft.yaml` and `snap/manifest.yaml` files.  Among other
+things, these are used by the Snap Store's automatic security
+vulnerability scanner to check whether your snap includes files from
+vulnerable versions of Ubuntu packages.
+
+This can be turned off by setting the `build-info` parameter to
+`false`.
+
+### `snapcraft-channel`
+
+By default, the action will install Snapcraft from the stable
+channel.  If your project relies on a feature not found in the stable
+version of Snapcraft, then the `snapcraft-channel` parameter can be
+used to select a different channel.
+
+### `snapcraft-args`
+
+The `snapcraft-args` parameter can be used to pass additional
+arguments to Snapcraft.  This is primarily intended to allow the use
+of experimental features by passing `--enable-experimental-*`
+arguments to Snapcraft.
