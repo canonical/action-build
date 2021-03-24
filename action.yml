@@ -36,6 +36,12 @@ inputs:
       must be turned on via a `--enable-experimental-*` command line
       argument.  This parameter can be used to turn on such features.
     default: ''
+  ua-token:
+    description: >
+      UA token to attach in build environment.
+
+      Snapcraft will detach the token when no longer required.
+    default: ''
 outputs:
   snap:
     description: 'The file name of the resulting snap.'

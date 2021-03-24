@@ -87,3 +87,10 @@ The `snapcraft-args` parameter can be used to pass additional
 arguments to Snapcraft.  This is primarily intended to allow the use
 of experimental features by passing `--enable-experimental-*`
 arguments to Snapcraft.
+
+### `ua-token`
+
+The `ua-token` parameter can be used to tell Snapcraft to attach an Ubuntu
+Advantage (UA) token inside the build environment. Snapcraft will ensure
+the token is detached before exiting, but be warned that it is possible
+some failures may prevent detaching (e.g. aborted jobs).

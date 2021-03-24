@@ -27,17 +27,20 @@ export class SnapcraftBuilder {
   includeBuildInfo: boolean
   snapcraftChannel: string
   snapcraftArgs: string
+  uaToken: string
 
   constructor(
     projectRoot: string,
     includeBuildInfo: boolean,
     snapcraftChannel: string,
-    snapcraftArgs: string
+    snapcraftArgs: string,
+    uaToken: string
   ) {
     this.projectRoot = expandHome(projectRoot)
     this.includeBuildInfo = includeBuildInfo
     this.snapcraftChannel = snapcraftChannel
     this.snapcraftArgs = snapcraftArgs
+    this.uaToken = uaToken
   }
 
   async build(): Promise<void> {
@@ -63,6 +66,9 @@ export class SnapcraftBuilder {
     let snapcraft = 'snapcraft'
     if (this.snapcraftArgs) {
       snapcraft = `${snapcraft} ${this.snapcraftArgs}`
+    }
+    if (this.uaToken) {
+      snapcraft = `${snapcraft} --ua-token ${this.uaToken}`
     }
 
     await exec.exec('sg', ['lxd', '-c', snapcraft], {
