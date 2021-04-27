@@ -104,12 +104,14 @@ as a repository secret:
 4. set the name to `UA_TOKEN` (or whatever is referenced in the workflow),
    and paste the UA token as the value.
 
+Note that repository secrets are not available to workflows triggered
+by pull requests to public repositories.
+
 An example workflow with UA token stored as secret `UA_TOKEN`:
 
 ```yaml
 ...
     - uses: snapcore/action-build@v1
       with:
-        path: path-to-snapcraft-project
         ua-token: ${{ secrets.UA_TOKEN }}
 ```
