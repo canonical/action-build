@@ -87,3 +87,29 @@ The `snapcraft-args` parameter can be used to pass additional
 arguments to Snapcraft.  This is primarily intended to allow the use
 of experimental features by passing `--enable-experimental-*`
 arguments to Snapcraft.
+
+### `ua-token`
+
+The `ua-token` parameter can be used to tell Snapcraft to attach an Ubuntu
+Advantage (UA) token inside the build environment. Snapcraft will ensure
+the token is detached before exiting, but be warned that it is possible
+some failures may prevent detaching (e.g. aborted jobs).
+
+In order to make the UA token available to the workflow, it should be stored
+as a repository secret:
+
+1. choose the "Settings" tab.
+2. choose "Secrets" from the menu on the left.
+3. click "Add a new secret".
+4. set the name to `UA_TOKEN` (or whatever is referenced in the workflow),
+   and paste the UA token as the value.
+
+An example workflow with UA token stored as secret `UA_TOKEN`:
+
+```yaml
+...
+    - uses: snapcore/action-build@v1
+      with:
+        path: path-to-snapcraft-project
+        ua-token: ${{ secrets.UA_TOKEN }}
+```

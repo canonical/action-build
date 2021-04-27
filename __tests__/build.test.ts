@@ -13,10 +13,10 @@ afterEach(() => {
 })
 
 test('SnapcraftBuilder expands tilde in project root', () => {
-  let builder = new build.SnapcraftBuilder('~', true, 'stable', '')
+  let builder = new build.SnapcraftBuilder('~', true, 'stable', '', '')
   expect(builder.projectRoot).toBe(os.homedir())
 
-  builder = new build.SnapcraftBuilder('~/foo/bar', true, 'stable', '')
+  builder = new build.SnapcraftBuilder('~/foo/bar', true, 'stable', '', '')
   expect(builder.projectRoot).toBe(path.join(os.homedir(), 'foo/bar'))
 })
 
@@ -41,7 +41,7 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   process.env['GITHUB_RUN_ID'] = '42'
 
   const projectDir = 'project-root'
-  const builder = new build.SnapcraftBuilder(projectDir, true, 'stable', '')
+  const builder = new build.SnapcraftBuilder(projectDir, true, 'stable', '', '')
   await builder.build()
 
   expect(ensureSnapd).toHaveBeenCalled()
@@ -76,7 +76,7 @@ test('SnapcraftBuilder.build can disable build info', async () => {
     }
   )
 
-  const builder = new build.SnapcraftBuilder('.', false, 'stable', '')
+  const builder = new build.SnapcraftBuilder('.', false, 'stable', '', '')
   await builder.build()
 
   expect(execMock).toHaveBeenCalledWith('sg', expect.any(Array), {
@@ -106,7 +106,7 @@ test('SnapcraftBuilder.build can set the Snapcraft channel', async () => {
     }
   )
 
-  const builder = new build.SnapcraftBuilder('.', false, 'edge', '')
+  const builder = new build.SnapcraftBuilder('.', false, 'edge', '', '')
   await builder.build()
 
   expect(ensureSnapcraft).toHaveBeenCalledWith('edge')
@@ -134,7 +134,8 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
     '.',
     false,
     'stable',
-    '--foo --bar'
+    '--foo --bar',
+    ''
   )
   await builder.build()
 
@@ -145,11 +146,45 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
   )
 })
 
+test('SnapcraftBuilder.build can pass UA token', async () => {
+  expect.assertions(1)
+
+  const ensureSnapd = jest
+    .spyOn(tools, 'ensureSnapd')
+    .mockImplementation(async (): Promise<void> => {})
+  const ensureLXD = jest
+    .spyOn(tools, 'ensureLXD')
+    .mockImplementation(async (): Promise<void> => {})
+  const ensureSnapcraft = jest
+    .spyOn(tools, 'ensureSnapcraft')
+    .mockImplementation(async (channel): Promise<void> => {})
+  const execMock = jest.spyOn(exec, 'exec').mockImplementation(
+    async (program: string, args?: string[]): Promise<number> => {
+      return 0
+    }
+  )
+
+  const builder = new build.SnapcraftBuilder(
+    '.',
+    false,
+    'stable',
+    '',
+    'test-ua-token'
+  )
+  await builder.build()
+
+  expect(execMock).toHaveBeenCalledWith(
+    'sg',
+    ['lxd', '-c', 'snapcraft --ua-token test-ua-token'],
+    expect.anything()
+  )
+})
+
 test('SnapcraftBuilder.outputSnap fails if there are no snaps', async () => {
   expect.assertions(2)
 
   const projectDir = 'project-root'
-  const builder = new build.SnapcraftBuilder(projectDir, true, 'stable', '')
+  const builder = new build.SnapcraftBuilder(projectDir, true, 'stable', '', '')
 
   const readdir = jest
     .spyOn(builder, '_readdir')
@@ -167,7 +202,7 @@ test('SnapcraftBuilder.outputSnap returns the first snap', async () => {
   expect.assertions(2)
 
   const projectDir = 'project-root'
-  const builder = new build.SnapcraftBuilder(projectDir, true, 'stable', '')
+  const builder = new build.SnapcraftBuilder(projectDir, true, 'stable', '', '')
 
   const readdir = jest
     .spyOn(builder, '_readdir')

@@ -11,12 +11,14 @@ async function run(): Promise<void> {
     core.info(`Building Snapcraft project in "${path}"...`)
     const snapcraftChannel = core.getInput('snapcraft-channel')
     const snapcraftArgs = core.getInput('snapcraft-args')
+    const uaToken = core.getInput('ua-token')
 
     const builder = new SnapcraftBuilder(
       path,
       buildInfo,
       snapcraftChannel,
-      snapcraftArgs
+      snapcraftArgs,
+      uaToken
     )
     await builder.build()
     const snap = await builder.outputSnap()

@@ -1499,11 +1499,12 @@ function expandHome(p) {
     return p;
 }
 class build_SnapcraftBuilder {
-    constructor(projectRoot, includeBuildInfo, snapcraftChannel, snapcraftArgs) {
+    constructor(projectRoot, includeBuildInfo, snapcraftChannel, snapcraftArgs, uaToken) {
         this.projectRoot = expandHome(projectRoot);
         this.includeBuildInfo = includeBuildInfo;
         this.snapcraftChannel = snapcraftChannel;
         this.snapcraftArgs = snapcraftArgs;
+        this.uaToken = uaToken;
     }
     build() {
         return build_awaiter(this, void 0, void 0, function* () {
@@ -1527,6 +1528,9 @@ class build_SnapcraftBuilder {
             let snapcraft = 'snapcraft';
             if (this.snapcraftArgs) {
                 snapcraft = `${snapcraft} ${this.snapcraftArgs}`;
+            }
+            if (this.uaToken) {
+                snapcraft = `${snapcraft} --ua-token ${this.uaToken}`;
             }
             yield Object(exec.exec)('sg', ['lxd', '-c', snapcraft], {
                 cwd: this.projectRoot,
@@ -1577,7 +1581,8 @@ function run() {
             Object(core.info)(`Building Snapcraft project in "${path}"...`);
             const snapcraftChannel = Object(core.getInput)('snapcraft-channel');
             const snapcraftArgs = Object(core.getInput)('snapcraft-args');
-            const builder = new build_SnapcraftBuilder(path, buildInfo, snapcraftChannel, snapcraftArgs);
+            const uaToken = Object(core.getInput)('ua-token');
+            const builder = new build_SnapcraftBuilder(path, buildInfo, snapcraftChannel, snapcraftArgs, uaToken);
             yield builder.build();
             const snap = yield builder.outputSnap();
             Object(core.setOutput)('snap', snap);
