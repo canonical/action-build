@@ -1500,12 +1500,12 @@ function expandHome(p) {
     return p;
 }
 class build_SnapcraftBuilder {
-    constructor(projectRoot, includeBuildInfo, snapcraftChannel, snapcraftArgs, uaToken) {
-        this.projectRoot = expandHome(projectRoot);
-        this.includeBuildInfo = includeBuildInfo;
-        this.snapcraftChannel = snapcraftChannel;
-        this.snapcraftArgs = snapcraftArgs;
-        this.uaToken = uaToken;
+    constructor(options) {
+        this.projectRoot = expandHome(options.projectRoot);
+        this.includeBuildInfo = options.includeBuildInfo;
+        this.snapcraftChannel = options.snapcraftChannel;
+        this.snapcraftArgs = options.snapcraftArgs;
+        this.uaToken = options.uaToken;
     }
     build() {
         return build_awaiter(this, void 0, void 0, function* () {
@@ -1577,13 +1577,19 @@ var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arg
 function run() {
     return main_awaiter(this, void 0, void 0, function* () {
         try {
-            const path = Object(core.getInput)('path');
-            const buildInfo = (Object(core.getInput)('build-info') || 'true').toUpperCase() === 'TRUE';
-            Object(core.info)(`Building Snapcraft project in "${path}"...`);
+            const projectRoot = Object(core.getInput)('path');
+            const includeBuildInfo = (Object(core.getInput)('build-info') || 'true').toUpperCase() === 'TRUE';
+            Object(core.info)(`Building Snapcraft project in "${projectRoot}"...`);
             const snapcraftChannel = Object(core.getInput)('snapcraft-channel');
             const snapcraftArgs = Object(core.getInput)('snapcraft-args');
             const uaToken = Object(core.getInput)('ua-token');
-            const builder = new build_SnapcraftBuilder(path, buildInfo, snapcraftChannel, snapcraftArgs, uaToken);
+            const builder = new build_SnapcraftBuilder({
+                projectRoot,
+                includeBuildInfo,
+                snapcraftChannel,
+                snapcraftArgs,
+                uaToken
+            });
             yield builder.build();
             const snap = yield builder.outputSnap();
             Object(core.setOutput)('snap', snap);
