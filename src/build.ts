@@ -22,6 +22,14 @@ function expandHome(p: string): string {
   return p
 }
 
+interface SnapcraftBuilderOptions {
+  projectRoot: string
+  includeBuildInfo: boolean
+  snapcraftChannel: string
+  snapcraftArgs: string
+  uaToken: string
+}
+
 export class SnapcraftBuilder {
   projectRoot: string
   includeBuildInfo: boolean
@@ -29,18 +37,12 @@ export class SnapcraftBuilder {
   snapcraftArgs: string
   uaToken: string
 
-  constructor(
-    projectRoot: string,
-    includeBuildInfo: boolean,
-    snapcraftChannel: string,
-    snapcraftArgs: string,
-    uaToken: string
-  ) {
-    this.projectRoot = expandHome(projectRoot)
-    this.includeBuildInfo = includeBuildInfo
-    this.snapcraftChannel = snapcraftChannel
-    this.snapcraftArgs = snapcraftArgs
-    this.uaToken = uaToken
+  constructor(options: SnapcraftBuilderOptions) {
+    this.projectRoot = expandHome(options.projectRoot)
+    this.includeBuildInfo = options.includeBuildInfo
+    this.snapcraftChannel = options.snapcraftChannel
+    this.snapcraftArgs = options.snapcraftArgs
+    this.uaToken = options.uaToken
   }
 
   async build(): Promise<void> {
