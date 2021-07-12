@@ -44,11 +44,13 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   const ensureSnapcraft = jest
     .spyOn(tools, 'ensureSnapcraft')
     .mockImplementation(async (channel): Promise<void> => {})
-  const execMock = jest.spyOn(exec, 'exec').mockImplementation(
-    async (program: string, args?: string[]): Promise<number> => {
-      return 0
-    }
-  )
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
   process.env['GITHUB_REPOSITORY'] = 'user/repo'
   process.env['GITHUB_RUN_ID'] = '42'
 
@@ -88,11 +90,13 @@ test('SnapcraftBuilder.build can disable build info', async () => {
   const ensureSnapcraft = jest
     .spyOn(tools, 'ensureSnapcraft')
     .mockImplementation(async (channel): Promise<void> => {})
-  const execMock = jest.spyOn(exec, 'exec').mockImplementation(
-    async (program: string, args?: string[]): Promise<number> => {
-      return 0
-    }
-  )
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
 
   const builder = new build.SnapcraftBuilder({
     projectRoot: '.',
@@ -124,11 +128,13 @@ test('SnapcraftBuilder.build can set the Snapcraft channel', async () => {
   const ensureSnapcraft = jest
     .spyOn(tools, 'ensureSnapcraft')
     .mockImplementation(async (channel): Promise<void> => {})
-  const execMock = jest.spyOn(exec, 'exec').mockImplementation(
-    async (program: string, args?: string[]): Promise<number> => {
-      return 0
-    }
-  )
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
 
   const builder = new build.SnapcraftBuilder({
     projectRoot: '.',
@@ -154,11 +160,13 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
   const ensureSnapcraft = jest
     .spyOn(tools, 'ensureSnapcraft')
     .mockImplementation(async (channel): Promise<void> => {})
-  const execMock = jest.spyOn(exec, 'exec').mockImplementation(
-    async (program: string, args?: string[]): Promise<number> => {
-      return 0
-    }
-  )
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
 
   const builder = new build.SnapcraftBuilder({
     projectRoot: '.',
@@ -188,11 +196,13 @@ test('SnapcraftBuilder.build can pass UA token', async () => {
   const ensureSnapcraft = jest
     .spyOn(tools, 'ensureSnapcraft')
     .mockImplementation(async (channel): Promise<void> => {})
-  const execMock = jest.spyOn(exec, 'exec').mockImplementation(
-    async (program: string, args?: string[]): Promise<number> => {
-      return 0
-    }
-  )
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
 
   const builder = new build.SnapcraftBuilder({
     projectRoot: '.',
