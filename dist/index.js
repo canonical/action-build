@@ -1620,7 +1620,17 @@ function ensureLXD() {
         // Ensure that the "lxd" group exists
         const haveSnapLXD = yield haveExecutable('/snap/bin/lxd');
         Object(core.info)('Installing LXD...');
-        yield Object(exec.exec)('sudo', ['snap', haveSnapLXD ? 'refresh' : 'install', 'lxd']);
+        if (haveSnapLXD) {
+            try {
+                yield Object(exec.exec)('sudo', ['snap', 'refresh', 'lxd']);
+            }
+            catch (err) {
+                Object(core.info)("LXD could not be refreshed...");
+            }
+        }
+        else {
+            yield Object(exec.exec)('sudo', ['snap', 'install', 'lxd']);
+        }
         Object(core.info)('Initialising LXD...');
         yield Object(exec.exec)('sudo', ['lxd', 'init', '--auto']);
     });

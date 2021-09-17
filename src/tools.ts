@@ -49,7 +49,15 @@ export async function ensureLXD(): Promise<void> {
   // Ensure that the "lxd" group exists
   const haveSnapLXD = await haveExecutable('/snap/bin/lxd')
   core.info('Installing LXD...')
-  await exec.exec('sudo', ['snap', haveSnapLXD ? 'refresh' : 'install', 'lxd'])
+  if (haveSnapLXD) {
+    try {
+      await exec.exec('sudo', ['snap', 'refresh', 'lxd'])
+    } catch (err) {
+      core.info('LXD could not be refreshed...')
+    }
+  } else {
+    await exec.exec('sudo', ['snap', 'install', 'lxd'])
+  }
   core.info('Initialising LXD...')
   await exec.exec('sudo', ['lxd', 'init', '--auto'])
 }
