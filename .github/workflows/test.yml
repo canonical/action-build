@@ -20,7 +20,6 @@ jobs:
     strategy:
       matrix:
         project:
-          - core
           - core18
           - core20
     steps:
@@ -29,6 +28,24 @@ jobs:
       id: snapcraft
       with:
         path: './test-projects/${{ matrix.project }}'
+    - uses: actions/upload-artifact@v2
+      with:
+        name: 'snap'
+        path: ${{ steps.snapcraft.outputs.snap}}
+
+  integration-legacy: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - core
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ./
+      id: snapcraft
+      with:
+        path: './test-projects/${{ matrix.project }}'
+        snapcraft-channel: 4.x/stable
     - uses: actions/upload-artifact@v2
       with:
         name: 'snap'
