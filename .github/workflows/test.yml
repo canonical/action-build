@@ -5,6 +5,8 @@ on: # rebuild any PRs and main branch changes
     branches:
       - master
       - 'releases/*'
+  schedule:
+    - cron: '0 9 * * *'
 
 jobs:
   unit: # make sure build/ci work properly
