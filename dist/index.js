@@ -3163,7 +3163,7 @@ async function run() {
         core.setOutput('snap', snap);
     }
     catch (error) {
-        core.setFailed(error === null || error === void 0 ? void 0 : error.message);
+        core.setFailed(error?.message);
     }
 }
 run();
