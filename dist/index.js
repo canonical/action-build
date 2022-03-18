@@ -1625,7 +1625,7 @@ function ensureLXD() {
                 yield Object(exec.exec)('sudo', ['snap', 'refresh', 'lxd']);
             }
             catch (err) {
-                Object(core.info)("LXD could not be refreshed...");
+                Object(core.info)('LXD could not be refreshed...');
             }
         }
         else {
