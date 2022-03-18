@@ -1,15 +1,17 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
+import * as core from '@actions/core'
+import * as exec from '@actions/exec'
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 import * as process from 'process'
-import * as core from '@actions/core'
-import * as exec from '@actions/exec'
 import * as tools from './tools'
 
 interface ImageInfo {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   'build-request-id'?: string
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   'build-request-timestamp'?: string
   // eslint-disable-next-line @typescript-eslint/naming-convention
   build_url?: string
