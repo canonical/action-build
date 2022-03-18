@@ -46,5 +46,5 @@ outputs:
   snap:
     description: 'The file name of the resulting snap.'
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
