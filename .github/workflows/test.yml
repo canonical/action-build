@@ -10,7 +10,7 @@ jobs:
   unit: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - run: |
         npm install
         npm run all
@@ -23,12 +23,12 @@ jobs:
           - core18
           - core20
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ./
       id: snapcraft
       with:
         path: './test-projects/${{ matrix.project }}'
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: 'snap'
         path: ${{ steps.snapcraft.outputs.snap}}
@@ -40,13 +40,13 @@ jobs:
         project:
           - core
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ./
       id: snapcraft
       with:
         path: './test-projects/${{ matrix.project }}'
         snapcraft-channel: 4.x/stable
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: 'snap'
         path: ${{ steps.snapcraft.outputs.snap}}
@@ -59,7 +59,7 @@ jobs:
           - ubuntu-20.04
     runs-on: ${{ matrix.runner }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: ./
       with:
         path: './test-projects/core18'
