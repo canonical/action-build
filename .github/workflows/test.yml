@@ -22,6 +22,7 @@ jobs:
         project:
           - core18
           - core20
+          - core22
     steps:
     - uses: actions/checkout@v3
     - uses: ./
@@ -57,9 +58,10 @@ jobs:
         runner:
           - ubuntu-18.04
           - ubuntu-20.04
+          - ubuntu-22.04
     runs-on: ${{ matrix.runner }}
     steps:
     - uses: actions/checkout@v3
     - uses: ./
       with:
-        path: './test-projects/core18'
+        path: './test-projects/core22'

@@ -1,0 +1,21 @@
+name: test-build-action-core22
+base: core22
+version: '0.1'
+summary: A simple test snap used to test the Github build action
+description: ...
+
+grade: devel
+confinement: strict
+
+apps:
+  test-build-action:
+    command: bin/hello
+
+parts:
+  build:
+    plugin: meson
+    build-packages:
+      - meson
+    meson-parameters:
+      - --prefix=/
+    source: .
