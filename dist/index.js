@@ -4164,6 +4164,28 @@ async function ensureSnapd() {
         await exec.exec('sudo', ['chown', 'root:root', '/']);
     }
 }
+async function ensureLXDNetwork() {
+    const mobyPackages = [
+        'moby-buildx',
+        'moby-engine',
+        'moby-cli',
+        'moby-compose',
+        'moby-containerd',
+        'moby-runc'
+    ];
+    const installedPackages = [];
+    const options = { silent: true };
+    for (const mobyPackage of mobyPackages) {
+        if ((await exec.exec('dpkg', ['-l', mobyPackage], options)) === 0) {
+            installedPackages.push(mobyPackage);
+        }
+    }
+    core.info(`Installed docker related packages might interfere with LXD networking: ${installedPackages}`);
+    // Removing docker is the best option, but some pipelines depend on it.
+    // https://linuxcontainers.org/lxd/docs/master/howto/network_bridge_firewalld/#prevent-issues-with-lxd-and-docker
+    // https://github.com/canonical/lxd-cloud/blob/f20a64a8af42485440dcbfd370faf14137d2f349/test/includes/lxd.sh#L13-L23
+    await exec.exec('sudo', ['iptables', '-P', 'FORWARD', 'ACCEPT']);
+}
 async function ensureLXD() {
     const haveDebLXD = await haveExecutable('/usr/bin/lxd');
     if (haveDebLXD) {
@@ -4195,6 +4217,7 @@ async function ensureLXD() {
     }
     core.info('Initialising LXD...');
     await exec.exec('sudo', ['lxd', 'init', '--auto']);
+    await ensureLXDNetwork();
 }
 async function ensureSnapcraft(channel) {
     const haveSnapcraft = await haveExecutable('/snap/bin/snapcraft');
