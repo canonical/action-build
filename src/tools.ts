@@ -29,6 +29,33 @@ export async function ensureSnapd(): Promise<void> {
   }
 }
 
+export async function ensureDockerRemoved(): Promise<void> {
+  const mobyPackages: string[] = [
+    'moby-buildx',
+    'moby-engine',
+    'moby-cli',
+    'moby-compose',
+    'moby-containerd',
+    'moby-runc'
+  ]
+  const installedPackages: string[] = []
+  for (const mobyPackage of mobyPackages) {
+    if ((await exec.exec('dpkg', ['-l', mobyPackage])) === 0) {
+      installedPackages.push(mobyPackage)
+    }
+  }
+  core.debug(`Installed docker related packages: ${installedPackages}`)
+  // https://github.com/canonical/lxd-cloud/blob/f20a64a8af42485440dcbfd370faf14137d2f349/test/includes/lxd.sh#L13-L23
+  if (installedPackages.length > 0) {
+    await exec.exec(
+      'sudo',
+      ['apt-get', 'remove', '--purge', '--yes'].concat(installedPackages)
+    )
+  }
+  // Run this regardless
+  await exec.exec('sudo', ['iptables', '-P', 'FORWARD', 'ACCEPT'])
+}
+
 export async function ensureLXD(): Promise<void> {
   const haveDebLXD = await haveExecutable('/usr/bin/lxd')
   if (haveDebLXD) {

@@ -4164,6 +4164,29 @@ async function ensureSnapd() {
         await exec.exec('sudo', ['chown', 'root:root', '/']);
     }
 }
+async function ensureDockerRemoved() {
+    const mobyPackages = [
+        'moby-buildx',
+        'moby-engine',
+        'moby-cli',
+        'moby-compose',
+        'moby-containerd',
+        'moby-runc'
+    ];
+    const installedPackages = [];
+    for (const mobyPackage of mobyPackages) {
+        if ((await exec.exec('dpkg', ['-l', mobyPackage])) === 0) {
+            installedPackages.push(mobyPackage);
+        }
+    }
+    core.debug(`Installed docker related packages: ${installedPackages}`);
+    // https://github.com/canonical/lxd-cloud/blob/f20a64a8af42485440dcbfd370faf14137d2f349/test/includes/lxd.sh#L13-L23
+    if (installedPackages.length > 0) {
+        await exec.exec('sudo', ['apt-get', 'remove', '--purge', '--yes'].concat(installedPackages));
+    }
+    // Run this regardless
+    await exec.exec('sudo', ['iptables', '-P', 'FORWARD', 'ACCEPT']);
+}
 async function ensureLXD() {
     const haveDebLXD = await haveExecutable('/usr/bin/lxd');
     if (haveDebLXD) {
@@ -4234,6 +4257,7 @@ class SnapcraftBuilder {
     }
     async build() {
         core.startGroup('Installing Snapcraft plus dependencies');
+        await ensureDockerRemoved();
         await ensureSnapd();
         await ensureLXD();
         await ensureSnapcraft(this.snapcraftChannel);

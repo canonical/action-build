@@ -33,8 +33,11 @@ test('SnapcraftBuilder expands tilde in project root', () => {
 })
 
 test('SnapcraftBuilder.build runs a snap build', async () => {
-  expect.assertions(4)
+  expect.assertions(5)
 
+  const ensureDockerRemoved = jest
+    .spyOn(tools, 'ensureDockerRemoved')
+    .mockImplementation(async (): Promise<void> => {})
   const ensureSnapd = jest
     .spyOn(tools, 'ensureSnapd')
     .mockImplementation(async (): Promise<void> => {})
@@ -64,6 +67,7 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   })
   await builder.build()
 
+  expect(ensureDockerRemoved).toHaveBeenCalled()
   expect(ensureSnapd).toHaveBeenCalled()
   expect(ensureLXD).toHaveBeenCalled()
   expect(ensureSnapcraft).toHaveBeenCalled()
@@ -81,6 +85,9 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
 test('SnapcraftBuilder.build can disable build info', async () => {
   expect.assertions(1)
 
+  const ensureDockerRemoved = jest
+    .spyOn(tools, 'ensureDockerRemoved')
+    .mockImplementation(async (): Promise<void> => {})
   const ensureSnapd = jest
     .spyOn(tools, 'ensureSnapd')
     .mockImplementation(async (): Promise<void> => {})
@@ -119,6 +126,9 @@ test('SnapcraftBuilder.build can disable build info', async () => {
 test('SnapcraftBuilder.build can set the Snapcraft channel', async () => {
   expect.assertions(1)
 
+  const ensureDockerRemoved = jest
+    .spyOn(tools, 'ensureDockerRemoved')
+    .mockImplementation(async (): Promise<void> => {})
   const ensureSnapd = jest
     .spyOn(tools, 'ensureSnapd')
     .mockImplementation(async (): Promise<void> => {})
@@ -151,6 +161,9 @@ test('SnapcraftBuilder.build can set the Snapcraft channel', async () => {
 test('SnapcraftBuilder.build can pass additional arguments', async () => {
   expect.assertions(1)
 
+  const ensureDockerRemoved = jest
+    .spyOn(tools, 'ensureDockerRemoved')
+    .mockImplementation(async (): Promise<void> => {})
   const ensureSnapd = jest
     .spyOn(tools, 'ensureSnapd')
     .mockImplementation(async (): Promise<void> => {})
@@ -187,6 +200,9 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
 test('SnapcraftBuilder.build can pass UA token', async () => {
   expect.assertions(1)
 
+  const ensureDockerRemoved = jest
+    .spyOn(tools, 'ensureDockerRemoved')
+    .mockImplementation(async (): Promise<void> => {})
   const ensureSnapd = jest
     .spyOn(tools, 'ensureSnapd')
     .mockImplementation(async (): Promise<void> => {})

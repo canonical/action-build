@@ -317,3 +317,79 @@ test('ensureSnapcraft refreshes if Snapcraft is installed', async () => {
     'snapcraft'
   ])
 })
+
+test('ensureDockerRemoved removes Docker', async () => {
+  expect.assertions(8)
+
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        if (args != undefined && args[1] == 'moby-runc') {
+          return 0
+        } else {
+          return 1
+        }
+      }
+    )
+
+  await tools.ensureDockerRemoved()
+
+  expect(execMock).toHaveBeenNthCalledWith(1, 'dpkg', ['-l', 'moby-buildx'])
+  expect(execMock).toHaveBeenNthCalledWith(2, 'dpkg', ['-l', 'moby-engine'])
+  expect(execMock).toHaveBeenNthCalledWith(3, 'dpkg', ['-l', 'moby-cli'])
+  expect(execMock).toHaveBeenNthCalledWith(4, 'dpkg', ['-l', 'moby-compose'])
+  expect(execMock).toHaveBeenNthCalledWith(5, 'dpkg', ['-l', 'moby-containerd'])
+  expect(execMock).toHaveBeenNthCalledWith(6, 'dpkg', ['-l', 'moby-runc'])
+  expect(execMock).toHaveBeenNthCalledWith(7, 'sudo', [
+    'apt-get',
+    'remove',
+    '--purge',
+    '--yes',
+    'moby-runc'
+  ])
+  expect(execMock).toHaveBeenNthCalledWith(8, 'sudo', [
+    'iptables',
+    '-P',
+    'FORWARD',
+    'ACCEPT'
+  ])
+})
+test('ensureDockerRemoved removes only installed packages', async () => {
+  expect.assertions(8)
+
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
+
+  await tools.ensureDockerRemoved()
+
+  expect(execMock).toHaveBeenNthCalledWith(1, 'dpkg', ['-l', 'moby-buildx'])
+  expect(execMock).toHaveBeenNthCalledWith(2, 'dpkg', ['-l', 'moby-engine'])
+  expect(execMock).toHaveBeenNthCalledWith(3, 'dpkg', ['-l', 'moby-cli'])
+  expect(execMock).toHaveBeenNthCalledWith(4, 'dpkg', ['-l', 'moby-compose'])
+  expect(execMock).toHaveBeenNthCalledWith(5, 'dpkg', ['-l', 'moby-containerd'])
+  expect(execMock).toHaveBeenNthCalledWith(6, 'dpkg', ['-l', 'moby-runc'])
+  expect(execMock).toHaveBeenNthCalledWith(7, 'sudo', [
+    'apt-get',
+    'remove',
+    '--purge',
+    '--yes',
+    'moby-buildx',
+    'moby-engine',
+    'moby-cli',
+    'moby-compose',
+    'moby-containerd',
+    'moby-runc'
+  ])
+  expect(execMock).toHaveBeenNthCalledWith(8, 'sudo', [
+    'iptables',
+    '-P',
+    'FORWARD',
+    'ACCEPT'
+  ])
+})

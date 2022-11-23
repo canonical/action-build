@@ -49,6 +49,7 @@ export class SnapcraftBuilder {
 
   async build(): Promise<void> {
     core.startGroup('Installing Snapcraft plus dependencies')
+    await tools.ensureDockerRemoved()
     await tools.ensureSnapd()
     await tools.ensureLXD()
     await tools.ensureSnapcraft(this.snapcraftChannel)
