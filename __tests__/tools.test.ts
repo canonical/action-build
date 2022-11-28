@@ -3,6 +3,7 @@
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
+import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as tools from '../src/tools'
 
@@ -315,5 +316,107 @@ test('ensureSnapcraft refreshes if Snapcraft is installed', async () => {
     'edge',
     '--classic',
     'snapcraft'
+  ])
+})
+
+test('ensureLXDNetwork sets up iptables and warns about Docker', async () => {
+  expect.assertions(8)
+
+  const infoMock = jest
+    .spyOn(core, 'info')
+    .mockImplementation((info: string) => {})
+
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        if (args != undefined && args[1] == 'moby-runc') {
+          return 0
+        } else {
+          return 1
+        }
+      }
+    )
+
+  await tools.ensureLXDNetwork()
+
+  expect(infoMock).toHaveBeenCalledWith(
+    'Installed docker related packages might interfere with LXD networking: moby-runc'
+  )
+  expect(execMock).toHaveBeenNthCalledWith(1, 'dpkg', ['-l', 'moby-buildx'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(2, 'dpkg', ['-l', 'moby-engine'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(3, 'dpkg', ['-l', 'moby-cli'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(4, 'dpkg', ['-l', 'moby-compose'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(
+    5,
+    'dpkg',
+    ['-l', 'moby-containerd'],
+    {silent: true}
+  )
+  expect(execMock).toHaveBeenNthCalledWith(6, 'dpkg', ['-l', 'moby-runc'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(7, 'sudo', [
+    'iptables',
+    '-P',
+    'FORWARD',
+    'ACCEPT'
+  ])
+})
+
+test('ensureLXDNetwork sets up iptables and warns only about installed packages', async () => {
+  expect.assertions(8)
+
+  const infoMock = jest
+    .spyOn(core, 'info')
+    .mockImplementation((info: string) => {})
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
+
+  await tools.ensureLXDNetwork()
+
+  expect(infoMock).toHaveBeenCalledWith(
+    'Installed docker related packages might interfere with LXD networking: ' +
+      'moby-buildx,moby-engine,moby-cli,moby-compose,moby-containerd,moby-runc'
+  )
+  expect(execMock).toHaveBeenNthCalledWith(1, 'dpkg', ['-l', 'moby-buildx'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(2, 'dpkg', ['-l', 'moby-engine'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(3, 'dpkg', ['-l', 'moby-cli'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(4, 'dpkg', ['-l', 'moby-compose'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(
+    5,
+    'dpkg',
+    ['-l', 'moby-containerd'],
+    {silent: true}
+  )
+  expect(execMock).toHaveBeenNthCalledWith(6, 'dpkg', ['-l', 'moby-runc'], {
+    silent: true
+  })
+  expect(execMock).toHaveBeenNthCalledWith(7, 'sudo', [
+    'iptables',
+    '-P',
+    'FORWARD',
+    'ACCEPT'
   ])
 })
