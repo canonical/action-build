@@ -20,7 +20,6 @@ jobs:
     strategy:
       matrix:
         project:
-          - core18
           - core20
           - core22
     steps:
@@ -35,7 +34,7 @@ jobs:
         path: ${{ steps.snapcraft.outputs.snap}}
 
   integration-legacy: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         project:
@@ -56,7 +55,6 @@ jobs:
     strategy:
       matrix:
         runner:
-          - ubuntu-18.04
           - ubuntu-20.04
           - ubuntu-22.04
     runs-on: ${{ matrix.runner }}
