@@ -4174,7 +4174,7 @@ async function ensureLXDNetwork() {
         'moby-runc'
     ];
     const installedPackages = [];
-    const options = { silent: true };
+    const options = { silent: true, ignoreReturnCode: true };
     for (const mobyPackage of mobyPackages) {
         if ((await exec.exec('dpkg', ['-l', mobyPackage], options)) === 0) {
             installedPackages.push(mobyPackage);
