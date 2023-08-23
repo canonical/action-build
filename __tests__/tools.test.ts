@@ -344,24 +344,29 @@ test('ensureLXDNetwork sets up iptables and warns about Docker', async () => {
     'Installed docker related packages might interfere with LXD networking: moby-runc'
   )
   expect(execMock).toHaveBeenNthCalledWith(1, 'dpkg', ['-l', 'moby-buildx'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(2, 'dpkg', ['-l', 'moby-engine'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(3, 'dpkg', ['-l', 'moby-cli'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(4, 'dpkg', ['-l', 'moby-compose'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(
     5,
     'dpkg',
     ['-l', 'moby-containerd'],
-    {silent: true}
+    {ignoreReturnCode: true, silent: true}
   )
   expect(execMock).toHaveBeenNthCalledWith(6, 'dpkg', ['-l', 'moby-runc'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(7, 'sudo', [
@@ -393,24 +398,29 @@ test('ensureLXDNetwork sets up iptables and warns only about installed packages'
       'moby-buildx,moby-engine,moby-cli,moby-compose,moby-containerd,moby-runc'
   )
   expect(execMock).toHaveBeenNthCalledWith(1, 'dpkg', ['-l', 'moby-buildx'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(2, 'dpkg', ['-l', 'moby-engine'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(3, 'dpkg', ['-l', 'moby-cli'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(4, 'dpkg', ['-l', 'moby-compose'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(
     5,
     'dpkg',
     ['-l', 'moby-containerd'],
-    {silent: true}
+    {ignoreReturnCode: true, silent: true}
   )
   expect(execMock).toHaveBeenNthCalledWith(6, 'dpkg', ['-l', 'moby-runc'], {
+    ignoreReturnCode: true,
     silent: true
   })
   expect(execMock).toHaveBeenNthCalledWith(7, 'sudo', [
