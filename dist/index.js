@@ -27301,18 +27301,12 @@ class SnapcraftBuilder {
         return await external_fs_.promises.readdir(dir);
     }
     getOuputSnapCount() {
-        const argsArr = this.snapcraftArgs.split(' ');
+        const argsArr = this.snapcraftArgs.split(/\s+/);
         for (const [index, element] of argsArr.entries()) {
             if (element.includes('--build-for') || element.includes('--build-on')) {
-                let archArg = null;
-                if (element.includes('=')) {
-                    //build-(on|for)=...
-                    archArg = element.split('=')[1];
-                }
-                else {
-                    //build-(on|for) ...
-                    archArg = argsArr[index + 1];
-                }
+                const archArg = element.includes('=')
+                    ? element.split('=')[1]
+                    : argsArr[index + 1];
                 return archArg.split(',').length;
             }
         }
