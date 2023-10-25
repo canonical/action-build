@@ -87,15 +87,37 @@ export class SnapcraftBuilder {
     return await fs.promises.readdir(dir)
   }
 
+  getOuputSnapCount(): int {
+    args_arr = this.snapcraftArgs.split(" ");
+    for (const [index, element] of args_arr.entries()) {
+      if(element.indexOf("--build-for") == 0 || element.indexOf("--build-on") == 0){
+        arch_arg = null;
+        if(element.indexOf("=") > 0){
+          //build-(on|for)=...
+          arch_arg = element.split("=")[1];
+        }else{
+          //build-(on|for) ...
+          arch_arg = args_arr[index + 1];
+        }
+        return arch_arg.split(",").length;
+      }
+    }
+    // build-(on|for) wasn't found, count should be 1
+    // default arch is the builder arch (for non remote as well)
+    return 1;
+  }
+
   async outputSnap(): Promise<string> {
     const files = await this._readdir(this.projectRoot)
     const snaps = files.filter(name => name.endsWith('.snap'))
 
-    if (snaps.length === 0) {
-      throw new Error('No snap files produced by build')
-    }
-    if (snaps.length > 1) {
-      core.warning(`Multiple snaps found in ${this.projectRoot}`)
+    expected_count = this.getOuputSnapCount()
+
+    if (snaps.length != expected_count) {
+      throw new Error(
+        'Not enough snap files produced'
+        '(Expected: ${expected_count}, Got: ${snaps.length})'
+      )
     }
     return path.join(this.projectRoot, snaps[0])
   }
