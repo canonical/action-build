@@ -90,9 +90,9 @@ export class SnapcraftBuilder {
   getOuputSnapCount(): int {
     args_arr = this.snapcraftArgs.split(" ");
     for (const [index, element] of args_arr.entries()) {
-      if(element.indexOf("--build-for") == 0 || element.indexOf("--build-on") == 0){
+      if(element.includes("--build-for") || element.includes("--build-on")){
         arch_arg = null;
-        if(element.indexOf("=") > 0){
+        if(element.includes("=")){
           //build-(on|for)=...
           arch_arg = element.split("=")[1];
         }else{
