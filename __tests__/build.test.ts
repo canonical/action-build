@@ -266,8 +266,7 @@ test('SnapcraftBuilder.outputSnap returns the first snap', async () => {
   expect(readdir).toHaveBeenCalled()
 })
 
-test('SnapcraftBuilder.outputSnap fails if more snaps are produced than expected',
-  async () => {
+test('SnapcraftBuilder.outputSnap fails if more snaps are produced than expected', async () => {
   expect.assertions(2)
 
   const projectDir = 'project-root'
@@ -291,8 +290,7 @@ test('SnapcraftBuilder.outputSnap fails if more snaps are produced than expected
   expect(readdir).toHaveBeenCalled()
 })
 
-test('SnapcraftBuilder.outputSnap fails if less snaps are produced than expected',
-  async () => {
+test('SnapcraftBuilder.outputSnap fails if less snaps are produced than expected', async () => {
   expect.assertions(2)
 
   const projectDir = 'project-root'
