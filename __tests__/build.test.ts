@@ -239,12 +239,34 @@ test('SnapcraftBuilder.outputSnap fails if there are no snaps', async () => {
     )
 
   await expect(builder.outputSnap()).rejects.toThrow(
-    'No snap files produced by build'
+    'Not enough snaps produced (Expected: 1, Got: 0)'
   )
   expect(readdir).toHaveBeenCalled()
 })
 
 test('SnapcraftBuilder.outputSnap returns the first snap', async () => {
+  expect.assertions(2)
+
+  const projectDir = 'project-root'
+  const builder = new build.SnapcraftBuilder({
+    projectRoot: projectDir,
+    includeBuildInfo: true,
+    snapcraftChannel: 'stable',
+    snapcraftArgs: 'remote-build --build-for=arm64,amd64',
+    uaToken: ''
+  })
+
+  const readdir = jest
+    .spyOn(builder, '_readdir')
+    .mockImplementation(
+      async (path: string): Promise<string[]> => ['one.snap', 'two.snap']
+    )
+
+  await expect(builder.outputSnap()).resolves.toEqual('project-root/one.snap')
+  expect(readdir).toHaveBeenCalled()
+})
+
+test('SnapcraftBuilder.outputSnap fails if more snaps are produced than expected', async () => {
   expect.assertions(2)
 
   const projectDir = 'project-root'
@@ -262,6 +284,32 @@ test('SnapcraftBuilder.outputSnap returns the first snap', async () => {
       async (path: string): Promise<string[]> => ['one.snap', 'two.snap']
     )
 
-  await expect(builder.outputSnap()).resolves.toEqual('project-root/one.snap')
+  await expect(builder.outputSnap()).rejects.toThrow(
+    'Not enough snaps produced (Expected: 1, Got: 2)'
+  )
+  expect(readdir).toHaveBeenCalled()
+})
+
+test('SnapcraftBuilder.outputSnap fails if less snaps are produced than expected', async () => {
+  expect.assertions(2)
+
+  const projectDir = 'project-root'
+  const builder = new build.SnapcraftBuilder({
+    projectRoot: projectDir,
+    includeBuildInfo: true,
+    snapcraftChannel: 'stable',
+    snapcraftArgs: 'remote-build --build-for=arm64,amd64,i386',
+    uaToken: ''
+  })
+
+  const readdir = jest
+    .spyOn(builder, '_readdir')
+    .mockImplementation(
+      async (path: string): Promise<string[]> => ['one.snap', 'two.snap']
+    )
+
+  await expect(builder.outputSnap()).rejects.toThrow(
+    'Not enough snaps produced (Expected: 3, Got: 2)'
+  )
   expect(readdir).toHaveBeenCalled()
 })
