@@ -87,11 +87,11 @@ export class SnapcraftBuilder {
     return await fs.promises.readdir(dir)
   }
 
-  getOuputSnapCount(): int {
-    args_arr = this.snapcraftArgs.split(" ");
+  getOuputSnapCount(): number {
+    let args_arr = this.snapcraftArgs.split(" ");
     for (const [index, element] of args_arr.entries()) {
       if(element.includes("--build-for") || element.includes("--build-on")){
-        arch_arg = null;
+        let arch_arg = null;
         if(element.includes("=")){
           //build-(on|for)=...
           arch_arg = element.split("=")[1];
@@ -111,12 +111,12 @@ export class SnapcraftBuilder {
     const files = await this._readdir(this.projectRoot)
     const snaps = files.filter(name => name.endsWith('.snap'))
 
-    expected_count = this.getOuputSnapCount()
+    let expected_count = this.getOuputSnapCount()
 
     if (snaps.length != expected_count) {
       throw new Error(
-        'Not enough snap files produced'
-        '(Expected: ${expected_count}, Got: ${snaps.length})'
+        'Not enough snap files produced \
+        (Expected: ${expected_count}, Got: ${snaps.length})'
       )
     }
     return path.join(this.projectRoot, snaps[0])
