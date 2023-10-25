@@ -115,8 +115,8 @@ export class SnapcraftBuilder {
 
     if (snaps.length != expected_count) {
       throw new Error(
-        'Not enough snap files produced \
-        (Expected: ${expected_count}, Got: ${snaps.length})'
+        'Not enough snaps produced ' +
+        `(Expected: ${expected_count}, Got: ${snaps.length})`
       )
     }
     return path.join(this.projectRoot, snaps[0])
