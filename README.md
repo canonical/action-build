@@ -115,3 +115,12 @@ An example workflow with UA token stored as secret `UA_TOKEN`:
       with:
         ua-token: ${{ secrets.UA_TOKEN }}
 ```
+
+### `max-parallel-build-count`
+
+Sets the value of the environment variable `SNAPCRAFT_MAX_PARALLEL_BUILD_COUNT` 
+to control the maximum number of parallel builds during the snap build & pack
+process.
+
+This may be useful for snaps with particularly large compilation jobs that
+can cause Github Actions runners to run out of resources and hang.

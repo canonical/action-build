@@ -12,13 +12,15 @@ async function run(): Promise<void> {
     const snapcraftChannel = core.getInput('snapcraft-channel')
     const snapcraftArgs = core.getInput('snapcraft-args')
     const uaToken = core.getInput('ua-token')
+    const maxParallelBuildCount = core.getInput('max-parallel-build-count')
 
     const builder = new SnapcraftBuilder({
       projectRoot,
       includeBuildInfo,
       snapcraftChannel,
       snapcraftArgs,
-      uaToken
+      uaToken,
+      maxParallelBuildCount
     })
     await builder.build()
     const snap = await builder.outputSnap()

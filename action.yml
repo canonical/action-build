@@ -42,6 +42,13 @@ inputs:
 
       Snapcraft will detach the token when no longer required.
     default: ''
+  max-parallel-build-count:
+    description: >
+      Sets the value of the environment variable
+      `SNAPCRAFT_MAX_PARALLEL_BUILD_COUNT` to control
+      the maximum number of parallel builds during the
+      snap build & pack process.
+    default: ''
 outputs:
   snap:
     description: 'The file name of the resulting snap.'

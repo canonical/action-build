@@ -1,10 +1,9 @@
 // -*- mode: javascript; js-indent-level: 2 -*-
 
-import * as fs from 'fs'
+import * as exec from '@actions/exec'
 import * as os from 'os'
 import * as path from 'path'
 import * as process from 'process'
-import * as exec from '@actions/exec'
 import * as build from '../src/build'
 import * as tools from '../src/tools'
 
@@ -18,7 +17,8 @@ test('SnapcraftBuilder expands tilde in project root', () => {
     includeBuildInfo: true,
     snapcraftChannel: 'stable',
     snapcraftArgs: '',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
   expect(builder.projectRoot).toBe(os.homedir())
 
@@ -27,7 +27,8 @@ test('SnapcraftBuilder expands tilde in project root', () => {
     includeBuildInfo: true,
     snapcraftChannel: 'stable',
     snapcraftArgs: '',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
   expect(builder.projectRoot).toBe(path.join(os.homedir(), 'foo/bar'))
 })
@@ -60,7 +61,8 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
     includeBuildInfo: true,
     snapcraftChannel: 'stable',
     snapcraftArgs: '',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
   await builder.build()
 
@@ -103,7 +105,8 @@ test('SnapcraftBuilder.build can disable build info', async () => {
     includeBuildInfo: false,
     snapcraftChannel: 'stable',
     snapcraftArgs: '',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
   await builder.build()
 
@@ -141,7 +144,8 @@ test('SnapcraftBuilder.build can set the Snapcraft channel', async () => {
     includeBuildInfo: false,
     snapcraftChannel: 'edge',
     snapcraftArgs: '',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
   await builder.build()
 
@@ -173,7 +177,8 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
     includeBuildInfo: false,
     snapcraftChannel: 'stable',
     snapcraftArgs: '--foo --bar',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
   await builder.build()
 
@@ -209,7 +214,8 @@ test('SnapcraftBuilder.build can pass UA token', async () => {
     includeBuildInfo: false,
     snapcraftChannel: 'stable',
     snapcraftArgs: '',
-    uaToken: 'test-ua-token'
+    uaToken: 'test-ua-token',
+    maxParallelBuildCount: ''
   })
   await builder.build()
 
@@ -229,7 +235,8 @@ test('SnapcraftBuilder.outputSnap fails if there are no snaps', async () => {
     includeBuildInfo: true,
     snapcraftChannel: 'stable',
     snapcraftArgs: '',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
 
   const readdir = jest
@@ -253,7 +260,8 @@ test('SnapcraftBuilder.outputSnap returns the first snap', async () => {
     includeBuildInfo: true,
     snapcraftChannel: 'stable',
     snapcraftArgs: '',
-    uaToken: ''
+    uaToken: '',
+    maxParallelBuildCount: ''
   })
 
   const readdir = jest
@@ -265,3 +273,35 @@ test('SnapcraftBuilder.outputSnap returns the first snap', async () => {
   await expect(builder.outputSnap()).resolves.toEqual('project-root/one.snap')
   expect(readdir).toHaveBeenCalled()
 })
+
+test('max-parallel-build-count manipulates the environment appropriately', async () => {
+  expect.assertions(1)
+
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
+
+  const projectDir = 'project-root'
+  const builder = new build.SnapcraftBuilder({
+    projectRoot: projectDir,
+    includeBuildInfo: true,
+    snapcraftChannel: 'stable',
+    snapcraftArgs: '',
+    uaToken: '',
+    maxParallelBuildCount: '6'
+  })
+  await builder.build()
+
+  expect(execMock).toHaveBeenCalledWith('sg', ['lxd', '-c', 'snapcraft'], {
+    cwd: projectDir,
+    env: expect.objectContaining({
+      SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
+      SNAPCRAFT_MAX_PARALLEL_BUILD_COUNT: '6'
+    })
+  })
+})
+

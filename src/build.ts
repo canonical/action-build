@@ -30,6 +30,7 @@ interface SnapcraftBuilderOptions {
   snapcraftChannel: string
   snapcraftArgs: string
   uaToken: string
+  maxParallelBuildCount: string
 }
 
 export class SnapcraftBuilder {
@@ -38,6 +39,7 @@ export class SnapcraftBuilder {
   snapcraftChannel: string
   snapcraftArgs: string
   uaToken: string
+  maxParallelBuildCount: string
 
   constructor(options: SnapcraftBuilderOptions) {
     this.projectRoot = expandHome(options.projectRoot)
@@ -45,6 +47,7 @@ export class SnapcraftBuilder {
     this.snapcraftChannel = options.snapcraftChannel
     this.snapcraftArgs = options.snapcraftArgs
     this.uaToken = options.uaToken
+    this.maxParallelBuildCount = options.maxParallelBuildCount
   }
 
   async build(): Promise<void> {
@@ -65,6 +68,10 @@ export class SnapcraftBuilder {
     env['SNAPCRAFT_IMAGE_INFO'] = JSON.stringify(imageInfo)
     if (this.includeBuildInfo) {
       env['SNAPCRAFT_BUILD_INFO'] = '1'
+    }
+
+    if (this.maxParallelBuildCount) {
+      env['SNAPCRAFT_MAX_PARALLEL_BUILD_COUNT'] = `${this.maxParallelBuildCount}`
     }
 
     let snapcraft = 'snapcraft'
