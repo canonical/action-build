@@ -24,6 +24,7 @@ jobs:
         project:
           - core20
           - core22
+          - core24
     steps:
     - uses: actions/checkout@v4
     - uses: ./
