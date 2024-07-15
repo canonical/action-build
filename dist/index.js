@@ -27283,14 +27283,15 @@ class SnapcraftBuilder {
         if (this.includeBuildInfo) {
             env['SNAPCRAFT_BUILD_INFO'] = '1';
         }
-        let snapcraft = 'snapcraft';
+        const snapcraft = ['snapcraft'];
         if (this.snapcraftArgs) {
-            snapcraft = `${snapcraft} ${this.snapcraftArgs}`;
+            snapcraft.push(...this.snapcraftArgs.split(/\s+/));
         }
         if (this.uaToken) {
-            snapcraft = `${snapcraft} --ua-token ${this.uaToken}`;
+            snapcraft.push('--ua-token', this.uaToken);
         }
-        await exec.exec('sg', ['lxd', '-c', snapcraft], {
+        const user = external_os_.userInfo().username;
+        await exec.exec('sudo', ['-u', user, '-E'].concat(snapcraft), {
             cwd: this.projectRoot,
             env
         });
