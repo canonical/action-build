@@ -64,18 +64,23 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   })
   await builder.build()
 
+  const user = os.userInfo().username
   expect(ensureSnapd).toHaveBeenCalled()
   expect(ensureLXD).toHaveBeenCalled()
   expect(ensureSnapcraft).toHaveBeenCalled()
-  expect(execMock).toHaveBeenCalledWith('sg', ['lxd', '-c', 'snapcraft'], {
-    cwd: projectDir,
-    env: expect.objectContaining({
-      SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
-      SNAPCRAFT_BUILD_INFO: '1',
-      SNAPCRAFT_IMAGE_INFO:
-        '{"build_url":"https://github.com/user/repo/actions/runs/42"}'
-    })
-  })
+  expect(execMock).toHaveBeenCalledWith(
+    'sudo',
+    ['-u', user, '-E', 'snapcraft'],
+    {
+      cwd: projectDir,
+      env: expect.objectContaining({
+        SNAPCRAFT_BUILD_ENVIRONMENT: 'lxd',
+        SNAPCRAFT_BUILD_INFO: '1',
+        SNAPCRAFT_IMAGE_INFO:
+          '{"build_url":"https://github.com/user/repo/actions/runs/42"}'
+      })
+    }
+  )
 })
 
 test('SnapcraftBuilder.build can disable build info', async () => {
@@ -107,7 +112,7 @@ test('SnapcraftBuilder.build can disable build info', async () => {
   })
   await builder.build()
 
-  expect(execMock).toHaveBeenCalledWith('sg', expect.any(Array), {
+  expect(execMock).toHaveBeenCalledWith('sudo', expect.any(Array), {
     cwd: expect.any(String),
     env: expect.not.objectContaining({
       // No SNAPCRAFT_BUILD_INFO variable
@@ -177,9 +182,10 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
   })
   await builder.build()
 
+  const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
-    'sg',
-    ['lxd', '-c', 'snapcraft --foo --bar'],
+    'sudo',
+    ['-u', user, '-E', 'snapcraft', '--foo', '--bar'],
     expect.anything()
   )
 })
@@ -213,9 +219,10 @@ test('SnapcraftBuilder.build can pass UA token', async () => {
   })
   await builder.build()
 
+  const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
-    'sg',
-    ['lxd', '-c', 'snapcraft --ua-token test-ua-token'],
+    'sudo',
+    ['-u', user, '-E', 'snapcraft', '--ua-token', 'test-ua-token'],
     expect.anything()
   )
 })
