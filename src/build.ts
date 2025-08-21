@@ -67,7 +67,7 @@ export class SnapcraftBuilder {
       env['SNAPCRAFT_BUILD_INFO'] = '1'
     }
 
-    const snapcraft = ['snapcraft']
+    const snapcraft = ['snapcraft', 'pack']
     if (this.snapcraftArgs) {
       snapcraft.push(...this.snapcraftArgs.split(/\s+/))
     }
