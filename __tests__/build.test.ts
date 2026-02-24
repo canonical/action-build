@@ -70,7 +70,7 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   expect(ensureSnapcraft).toHaveBeenCalled()
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft'],
+    ['-u', user, '-E', 'snapcraft', 'pack'],
     {
       cwd: projectDir,
       env: expect.objectContaining({
@@ -185,7 +185,7 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
   const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft', '--foo', '--bar'],
+    ['-u', user, '-E', 'snapcraft', 'pack', '--foo', '--bar'],
     expect.anything()
   )
 })
@@ -222,9 +222,89 @@ test('SnapcraftBuilder.build can pass UA token', async () => {
   const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft', '--ua-token', 'test-ua-token'],
+    ['-u', user, '-E', 'snapcraft', 'pack', '--ua-token', 'test-ua-token'],
     expect.anything()
   )
+})
+
+test('SnapcraftBuilder.build calls "snapcraft" for 4.x, 5.x, 6.x, 7.x channels', async () => {
+  expect.assertions(4)
+
+  const ensureSnapd = jest
+    .spyOn(tools, 'ensureSnapd')
+    .mockImplementation(async (): Promise<void> => {})
+  const ensureLXD = jest
+    .spyOn(tools, 'ensureLXD')
+    .mockImplementation(async (): Promise<void> => {})
+  const ensureSnapcraft = jest
+    .spyOn(tools, 'ensureSnapcraft')
+    .mockImplementation(async (channel): Promise<void> => {})
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
+
+  const user = os.userInfo().username
+
+  for (const channel of ['4.x/stable', '5.x/candidate', '6.x/beta', '7.x/edge']) {
+    const builder = new build.SnapcraftBuilder({
+      projectRoot: '.',
+      includeBuildInfo: false,
+      snapcraftChannel: channel,
+      snapcraftArgs: '',
+      uaToken: ''
+    })
+    await builder.build()
+
+    expect(execMock).toHaveBeenCalledWith(
+      'sudo',
+      ['-u', user, '-E', 'snapcraft'],
+      expect.anything()
+    )
+  }
+})
+
+test('SnapcraftBuilder.build calls "snapcraft pack" for non-legacy channels', async () => {
+  expect.assertions(6)
+
+  const ensureSnapd = jest
+    .spyOn(tools, 'ensureSnapd')
+    .mockImplementation(async (): Promise<void> => {})
+  const ensureLXD = jest
+    .spyOn(tools, 'ensureLXD')
+    .mockImplementation(async (): Promise<void> => {})
+  const ensureSnapcraft = jest
+    .spyOn(tools, 'ensureSnapcraft')
+    .mockImplementation(async (channel): Promise<void> => {})
+  const execMock = jest
+    .spyOn(exec, 'exec')
+    .mockImplementation(
+      async (program: string, args?: string[]): Promise<number> => {
+        return 0
+      }
+    )
+
+  const user = os.userInfo().username
+
+  for (const channel of ['8.x/stable', 'latest/candidate', 'beta', 'edge', 'latest/edge/pr-1234', '']) {
+    const builder = new build.SnapcraftBuilder({
+      projectRoot: '.',
+      includeBuildInfo: false,
+      snapcraftChannel: channel,
+      snapcraftArgs: '',
+      uaToken: ''
+    })
+    await builder.build()
+
+    expect(execMock).toHaveBeenCalledWith(
+      'sudo',
+      ['-u', user, '-E', 'snapcraft', 'pack'],
+      expect.anything()
+    )
+  }
 })
 
 test('SnapcraftBuilder.outputSnap fails if there are no snaps', async () => {
