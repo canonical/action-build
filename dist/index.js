@@ -28219,6 +28219,11 @@ class SnapcraftBuilder {
             env['SNAPCRAFT_BUILD_INFO'] = '1';
         }
         const snapcraft = ['snapcraft'];
+        // snapcraft<8 lacks support for 'snapcraft pack', so it isn't used for the 4.x, 5.x, 6.x, and 7.x channels
+        const usePack = !/^[4567]\.x/.test(this.snapcraftChannel);
+        if (usePack) {
+            snapcraft.push('pack');
+        }
         if (this.snapcraftArgs) {
             snapcraft.push(...this.snapcraftArgs.split(/\s+/));
         }
