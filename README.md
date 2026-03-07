@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - uses: snapcore/action-build@v1
 ```
 
@@ -28,7 +28,7 @@ the workflow:
 ...
     - uses: snapcore/action-build@v1
       id: snapcraft
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v7
       with:
         name: snap
         path: ${{ steps.snapcraft.outputs.snap }}
