@@ -18,12 +18,12 @@ jobs:
           - core22
           - core24
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: ./
       id: snapcraft
       with:
         path: './test-projects/${{ matrix.project }}'
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: 'snap-${{ matrix.project }}'
         path: ${{ steps.snapcraft.outputs.snap}}
@@ -35,7 +35,7 @@ jobs:
       - integration
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/upload-artifact/merge@v4
+    - uses: actions/upload-artifact/merge@v7
       with:
         name: snap
         pattern: snap-*
@@ -50,7 +50,7 @@ jobs:
           - ubuntu-24.04
     runs-on: ${{ matrix.runner }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: ./
       with:
         path: './test-projects/core22'
