@@ -120,11 +120,14 @@ test('SnapcraftBuilder.build can disable build info', async () => {
   })
   await builder.build()
 
-  expect(execMock).toHaveBeenCalledWith('sudo', expect.any(Array), {
-    cwd: expect.any(String),
-    env: expect.not.objectContaining({
-      // No SNAPCRAFT_BUILD_INFO variable
-      SNAPCRAFT_BUILD_INFO: expect.anything()
+  expect(execMock).toHaveBeenCalledWith(
+    'sudo',
+    expect.not.arrayContaining(['SNAPCRAFT_BUILD_INFO=1']),
+    {
+      cwd: expect.any(String),
+      env: expect.not.objectContaining({
+        // No SNAPCRAFT_BUILD_INFO variable
+        SNAPCRAFT_BUILD_INFO: expect.anything()
     })
   })
 })
