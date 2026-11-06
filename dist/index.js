@@ -28225,8 +28225,17 @@ class SnapcraftBuilder {
         if (this.uaToken) {
             snapcraft.push('--ua-token', this.uaToken);
         }
+        // sudo-rs (Ubuntu 26.04+) ignores -E, dropping the environment, so pass
+        // the build metadata to snapcraft explicitly.
         const user = external_os_.userInfo().username;
-        await exec.exec('sudo', ['-u', user, '-E'].concat(snapcraft), {
+        const envArgs = [
+            'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+            `SNAPCRAFT_IMAGE_INFO=${JSON.stringify(imageInfo)}`
+        ];
+        if (this.includeBuildInfo) {
+            envArgs.push('SNAPCRAFT_BUILD_INFO=1');
+        }
+        await exec.exec('sudo', ['-u', user, 'env'].concat(envArgs, snapcraft), {
             cwd: this.projectRoot,
             env
         });

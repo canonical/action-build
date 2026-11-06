@@ -70,7 +70,15 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   expect(ensureSnapcraft).toHaveBeenCalled()
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft'],
+    [
+      '-u',
+      user,
+      'env',
+      'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+      'SNAPCRAFT_IMAGE_INFO={"build_url":"https://github.com/user/repo/actions/runs/42"}',
+      'SNAPCRAFT_BUILD_INFO=1',
+      'snapcraft'
+    ],
     {
       cwd: projectDir,
       env: expect.objectContaining({
@@ -112,11 +120,14 @@ test('SnapcraftBuilder.build can disable build info', async () => {
   })
   await builder.build()
 
-  expect(execMock).toHaveBeenCalledWith('sudo', expect.any(Array), {
-    cwd: expect.any(String),
-    env: expect.not.objectContaining({
-      // No SNAPCRAFT_BUILD_INFO variable
-      SNAPCRAFT_BUILD_INFO: expect.anything()
+  expect(execMock).toHaveBeenCalledWith(
+    'sudo',
+    expect.not.arrayContaining(['SNAPCRAFT_BUILD_INFO=1']),
+    {
+      cwd: expect.any(String),
+      env: expect.not.objectContaining({
+        // No SNAPCRAFT_BUILD_INFO variable
+        SNAPCRAFT_BUILD_INFO: expect.anything()
     })
   })
 })
@@ -185,7 +196,16 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
   const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft', '--foo', '--bar'],
+    [
+      '-u',
+      user,
+      'env',
+      'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+      expect.stringMatching(/^SNAPCRAFT_IMAGE_INFO=/),
+      'snapcraft',
+      '--foo',
+      '--bar'
+    ],
     expect.anything()
   )
 })
@@ -222,7 +242,16 @@ test('SnapcraftBuilder.build can pass UA token', async () => {
   const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft', '--ua-token', 'test-ua-token'],
+    [
+      '-u',
+      user,
+      'env',
+      'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+      expect.stringMatching(/^SNAPCRAFT_IMAGE_INFO=/),
+      'snapcraft',
+      '--ua-token',
+      'test-ua-token'
+    ],
     expect.anything()
   )
 })
