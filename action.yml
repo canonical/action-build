@@ -45,6 +45,43 @@ inputs:
 outputs:
   snap:
     description: 'The file name of the resulting snap.'
+    value: ${{ steps.snapcraft-pack.outputs.snaps }}
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: 'composite'
+  steps:
+    - name: suggest upgrading to canonical/craft-actions/snapcraft/pack
+      shell: bash
+      run: |
+        echo '::warning::Please upgrade to the canonical/craft-actions/snapcraft/pack action'
+    - name: snapcraft-args input is unsupported
+      if: inputs.snapcraft-args != ''
+      shell: bash
+      run: |
+        echo '::error::The snapcraft-args input parameter is no longer supported'
+        exit 1
+    - name: ua-token input is unsupported
+      if: inputs.ua-token != ''
+      shell: bash
+      run: |
+        echo '::error::The ua-token input parameter is no longer supported'
+        exit 1
+    - name: populate build-info
+      if: inputs.build-info == 'true'
+      shell: bash
+      run: |
+        # The snapcraft/pack action does not generate a manifest:
+        #   https://github.com/canonical/craft-actions/issues/148
+        echo "SNAPCRAFT_IMAGE_INFO={\"build_url\": \"https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}\"}" >> $GITHUB_ENV
+        echo "SNAPCRAFT_BUILD_INFO=1" >> $GITHUB_ENV
+    - name: Force LXD builds under legacy Snapcraft
+      shell: bash
+      run: |
+        # The snapcraft/pack action does not enable LXD builds for snapcraft_legacy:
+        #   https://github.com/canonical/craft-actions/issues/146
+        echo "SNAPCRAFT_BUILD_ENVIRONMENT=lxd" >> $GITHUB_ENV
+    - name: build the snap
+      id: snapcraft-pack
+      uses: canonical/craft-actions/snapcraft/pack@v1
+      with:
+        path: ${{ inputs.path }}
+        channel: ${{ inputs.snapcraft-channel }}

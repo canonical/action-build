@@ -9,51 +9,38 @@ on: # rebuild any PRs and main branch changes
     - cron: '0 9 * * *'
 
 jobs:
-  unit: # make sure build/ci work properly
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - run: |
-        npm install
-        npm run all
-
   integration: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
     strategy:
       matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-26.04-arm
+        channel:
+          - stable
         project:
-          - core20
           - core22
           - core24
+          - core26
+        # Deprecated base snaps
+        include:
+          - os: ubuntu-22.04
+            channel: 8.x/stable
+            project: core20
+          ## Snapcraft 7.x doesn't like the "--verbosity debug" argument
+          #- os: ubuntu-22.04
+          #  channel: 7.x/stable
+          #  project: core18
+    runs-on: '${{ matrix.os }}'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: ./
       id: snapcraft
       with:
+        snapcraft-channel: '${{ matrix.channel }}'
         path: './test-projects/${{ matrix.project }}'
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
-        name: 'snap-${{ matrix.project }}'
-        path: ${{ steps.snapcraft.outputs.snap}}
-        compression-level: 0
-        retention-days: 7
-
-  integration-legacy: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        project:
-          - core
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./
-      id: snapcraft
-      with:
-        path: './test-projects/${{ matrix.project }}'
-        snapcraft-channel: 4.x/stable
-    - uses: actions/upload-artifact@v4
-      with:
-        name: 'snap-${{ matrix.project }}'
+        name: 'snap-${{ matrix.project }}-${{ matrix.os }}'
         path: ${{ steps.snapcraft.outputs.snap}}
         compression-level: 0
         retention-days: 7
@@ -61,10 +48,9 @@ jobs:
   collect-artifacts:
     needs:
       - integration
-      - integration-legacy
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/upload-artifact/merge@v4
+    - uses: actions/upload-artifact/merge@v7
       with:
         name: snap
         pattern: snap-*
@@ -74,13 +60,16 @@ jobs:
   check-runner: # make sure the action works on each VM image
     strategy:
       matrix:
-        runner:
-          - ubuntu-20.04
-          - ubuntu-22.04
-          - ubuntu-24.04
-    runs-on: ${{ matrix.runner }}
+        include:
+          - os: ubuntu-22.04
+            project: core22
+          - os: ubuntu-24.04
+            project: core24
+          - os: ubuntu-26.04
+            project: core26
+    runs-on: '${{ matrix.os }}'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: ./
       with:
-        path: './test-projects/core22'
+        path: './test-projects/${{ matrix.project }}'
