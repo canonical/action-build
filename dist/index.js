@@ -28225,8 +28225,13 @@ class SnapcraftBuilder {
         if (this.uaToken) {
             snapcraft.push('--ua-token', this.uaToken);
         }
+        // Pass Craft variables explicitly rather than relying on sudo -E, which
+        // sudo-rs ignores.
+        const envArgs = Object.entries(env)
+            .filter(([name]) => /^(?:SNAP)?CRAFT_/.test(name))
+            .map(([name, value]) => `${name}=${value}`);
         const user = external_os_.userInfo().username;
-        await exec.exec('sudo', ['-u', user, '-E'].concat(snapcraft), {
+        await exec.exec('sudo', ['-u', user, 'env', ...envArgs, ...snapcraft], {
             cwd: this.projectRoot,
             env
         });

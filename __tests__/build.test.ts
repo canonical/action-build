@@ -3,10 +3,20 @@
 import * as fs from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import * as process from 'process'
+import process from 'process'
 import * as exec from '@actions/exec'
 import * as build from '../src/build'
 import * as tools from '../src/tools'
+
+beforeEach(() => {
+  const env = {...process.env}
+  for (const name of Object.keys(env)) {
+    if (/^(?:SNAP)?CRAFT_/.test(name)) {
+      delete env[name]
+    }
+  }
+  jest.replaceProperty(process, 'env', env)
+})
 
 afterEach(() => {
   jest.restoreAllMocks()
@@ -70,7 +80,15 @@ test('SnapcraftBuilder.build runs a snap build', async () => {
   expect(ensureSnapcraft).toHaveBeenCalled()
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft'],
+    [
+      '-u',
+      user,
+      'env',
+      'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+      'SNAPCRAFT_IMAGE_INFO={"build_url":"https://github.com/user/repo/actions/runs/42"}',
+      'SNAPCRAFT_BUILD_INFO=1',
+      'snapcraft'
+    ],
     {
       cwd: projectDir,
       env: expect.objectContaining({
@@ -112,14 +130,72 @@ test('SnapcraftBuilder.build can disable build info', async () => {
   })
   await builder.build()
 
-  expect(execMock).toHaveBeenCalledWith('sudo', expect.any(Array), {
-    cwd: expect.any(String),
-    env: expect.not.objectContaining({
-      // No SNAPCRAFT_BUILD_INFO variable
-      SNAPCRAFT_BUILD_INFO: expect.anything()
-    })
-  })
+  expect(execMock).toHaveBeenCalledWith(
+    'sudo',
+    expect.not.arrayContaining([
+      expect.stringMatching(/^SNAPCRAFT_BUILD_INFO=/)
+    ]),
+    {
+      cwd: expect.any(String),
+      env: expect.not.objectContaining({
+        // No SNAPCRAFT_BUILD_INFO variable
+        SNAPCRAFT_BUILD_INFO: expect.anything()
+      })
+    }
+  )
 })
+
+test.each([true, false])(
+  'SnapcraftBuilder.build forwards Craft variables with includeBuildInfo=%s',
+  async includeBuildInfo => {
+    jest.spyOn(tools, 'ensureSnapd').mockResolvedValue(undefined)
+    jest.spyOn(tools, 'ensureLXD').mockResolvedValue(undefined)
+    jest.spyOn(tools, 'ensureSnapcraft').mockResolvedValue(undefined)
+    const execMock = jest.spyOn(exec, 'exec').mockResolvedValue(0)
+    Object.assign(process.env, {
+      CRAFT_VERBOSITY_LEVEL: 'debug',
+      SNAPCRAFT_BUILD_ARGS: 'value with spaces=and=equals',
+      CRAFT_EMPTY: '',
+      SNAPCRAFT_BUILD_ENVIRONMENT: 'multipass',
+      SNAPCRAFT_IMAGE_INFO: '{"build_url":"inherited"}',
+      SNAPCRAFT_BUILD_INFO: 'inherited',
+      OTHER_SNAPCRAFT_FOO: 'excluded',
+      OTHER_CRAFT_FOO: 'excluded',
+      CHARMCRAFT_FOO: 'excluded',
+      CRAFT: 'excluded',
+      SNAPCRAFT: 'excluded',
+      UNRELATED: 'excluded',
+      GITHUB_REPOSITORY: 'user/repo',
+      GITHUB_RUN_ID: '42'
+    })
+
+    const builder = new build.SnapcraftBuilder({
+      projectRoot: '.',
+      includeBuildInfo,
+      snapcraftChannel: 'stable',
+      snapcraftArgs: '',
+      uaToken: ''
+    })
+    await builder.build()
+
+    expect(execMock).toHaveBeenCalledWith(
+      'sudo',
+      [
+        '-u',
+        os.userInfo().username,
+        'env',
+        'CRAFT_VERBOSITY_LEVEL=debug',
+        'SNAPCRAFT_BUILD_ARGS=value with spaces=and=equals',
+        'CRAFT_EMPTY=',
+        'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+        'SNAPCRAFT_IMAGE_INFO={"build_url":"https://github.com/user/repo/actions/runs/42"}',
+        `SNAPCRAFT_BUILD_INFO=${includeBuildInfo ? '1' : 'inherited'}`,
+        'snapcraft'
+      ],
+      expect.anything()
+    )
+  }
+)
 
 test('SnapcraftBuilder.build can set the Snapcraft channel', async () => {
   expect.assertions(1)
@@ -185,7 +261,16 @@ test('SnapcraftBuilder.build can pass additional arguments', async () => {
   const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft', '--foo', '--bar'],
+    [
+      '-u',
+      user,
+      'env',
+      'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+      expect.stringMatching(/^SNAPCRAFT_IMAGE_INFO=/),
+      'snapcraft',
+      '--foo',
+      '--bar'
+    ],
     expect.anything()
   )
 })
@@ -222,7 +307,16 @@ test('SnapcraftBuilder.build can pass UA token', async () => {
   const user = os.userInfo().username
   expect(execMock).toHaveBeenCalledWith(
     'sudo',
-    ['-u', user, '-E', 'snapcraft', '--ua-token', 'test-ua-token'],
+    [
+      '-u',
+      user,
+      'env',
+      'SNAPCRAFT_BUILD_ENVIRONMENT=lxd',
+      expect.stringMatching(/^SNAPCRAFT_IMAGE_INFO=/),
+      'snapcraft',
+      '--ua-token',
+      'test-ua-token'
+    ],
     expect.anything()
   )
 })
